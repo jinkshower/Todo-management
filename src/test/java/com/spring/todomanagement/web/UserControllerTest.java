@@ -4,7 +4,8 @@ import com.spring.todomanagement.auth.JwtUtil;
 import com.spring.todomanagement.domain.user.Role;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
-import com.spring.todomanagement.web.dto.AuthRequestDto;
+import com.spring.todomanagement.web.dto.LoginRequestDto;
+import com.spring.todomanagement.web.dto.SignupRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,10 +45,10 @@ class UserControllerTest {
     @Test
     void test() {
         //given
-        String name = "Jackie";
-        String password = "1234";
+        String name = "jackie";
+        String password = "12345678";
 
-        AuthRequestDto requestDto = AuthRequestDto.builder()
+        SignupRequestDto requestDto = SignupRequestDto.builder()
                 .name(name)
                 .password(password)
                 .build();
@@ -56,8 +56,8 @@ class UserControllerTest {
         String url = "http://localhost:" + port + "/user/signup";
 
         //when
-        ResponseEntity<AuthRequestDto> responseEntity =
-                restTemplate.postForEntity(url, requestDto, AuthRequestDto.class);
+        ResponseEntity<SignupRequestDto> responseEntity =
+                restTemplate.postForEntity(url, requestDto, SignupRequestDto.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -71,7 +71,7 @@ class UserControllerTest {
     void test1() {
         //given
         String name = "Jack";
-        String password = "1234";
+        String password = "12345678";
 
         userRepository.save(User.builder()
                 .name(name)
@@ -79,7 +79,7 @@ class UserControllerTest {
                 .role(Role.USER)
                 .build());
 
-        AuthRequestDto requestDto = AuthRequestDto.builder()
+        LoginRequestDto requestDto = LoginRequestDto.builder()
                 .name(name)
                 .password(password)
                 .build();
@@ -87,8 +87,8 @@ class UserControllerTest {
         String url = "http://localhost:" + port + "/user/login";
 
         //when
-        ResponseEntity<AuthRequestDto> responseEntity =
-                restTemplate.postForEntity(url, requestDto, AuthRequestDto.class);
+        ResponseEntity<LoginRequestDto> responseEntity =
+                restTemplate.postForEntity(url, requestDto, LoginRequestDto.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
