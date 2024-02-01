@@ -9,6 +9,8 @@ import com.spring.todomanagement.web.dto.SignupRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -43,7 +45,7 @@ class UserControllerTest {
 
     @DisplayName("회원가입을 할 수 있다")
     @Test
-    void test() {
+    void test1() {
         //given
         String name = "jackie";
         String password = "12345678";
@@ -56,8 +58,8 @@ class UserControllerTest {
         String url = "http://localhost:" + port + "/user/signup";
 
         //when
-        ResponseEntity<SignupRequestDto> responseEntity =
-                restTemplate.postForEntity(url, requestDto, SignupRequestDto.class);
+        ResponseEntity<CommonResponse> responseEntity =
+                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -68,7 +70,7 @@ class UserControllerTest {
 
     @DisplayName("로그인을 할 수 있다")
     @Test
-    void test1() {
+    void test2() {
         //given
         String name = "Jack";
         String password = "12345678";
@@ -87,11 +89,53 @@ class UserControllerTest {
         String url = "http://localhost:" + port + "/user/login";
 
         //when
-        ResponseEntity<LoginRequestDto> responseEntity =
-                restTemplate.postForEntity(url, requestDto, LoginRequestDto.class);
+        ResponseEntity<CommonResponse> responseEntity =
+                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().keySet()).contains(JwtUtil.AUTHORIZATION_HEADER);
+    }
+
+    @DisplayName("올바른 이름이 아니면 회원가입 할 수 없다")
+    @ParameterizedTest
+    @ValueSource(strings = {"Jack", "!jack", "aaa", "aaaaaaaaaaa"})
+    void test3(String input) {
+        String password = "12345678";
+
+        SignupRequestDto requestDto = SignupRequestDto.builder()
+                .name(input)
+                .password(password)
+                .build();
+
+        String url = "http://localhost:" + port + "/user/signup";
+
+        //when
+        ResponseEntity<CommonResponse> responseEntity =
+                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @DisplayName("올바른 비밀번호가 아니면 회원가입 할 수 없다")
+    @ParameterizedTest
+    @ValueSource(strings = {"1234567", "!password", "aaaaaaaaaaaaaaaa"})
+    void test4(String input) {
+        String name = "jack";
+
+        SignupRequestDto requestDto = SignupRequestDto.builder()
+                .name(name)
+                .password(input)
+                .build();
+
+        String url = "http://localhost:" + port + "/user/signup";
+
+        //when
+        ResponseEntity<CommonResponse> responseEntity =
+                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
