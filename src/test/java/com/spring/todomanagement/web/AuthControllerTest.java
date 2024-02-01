@@ -6,7 +6,6 @@ import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
 import com.spring.todomanagement.web.dto.SignupRequestDto;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerTest {
+class AuthControllerTest {
 
     @LocalServerPort
     private int port;
@@ -38,16 +37,11 @@ class UserControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @AfterEach
-    void clear() {
-        userRepository.deleteAll();
-    }
-
     @DisplayName("회원가입을 할 수 있다")
     @Test
     void test1() {
         //given
-        String name = "jackie";
+        String name = "hiyen";
         String password = "12345678";
 
         SignupRequestDto requestDto = SignupRequestDto.builder()

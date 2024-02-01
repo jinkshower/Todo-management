@@ -41,6 +41,9 @@ dependencies {
 
 // json
     implementation 'org.json:json:20230227'
+
+    //h2
+    runtimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
