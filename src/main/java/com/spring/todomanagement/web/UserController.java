@@ -1,8 +1,10 @@
 package com.spring.todomanagement.web;
 
 import com.spring.todomanagement.service.user.UserService;
-import com.spring.todomanagement.web.dto.AuthRequestDto;
+import com.spring.todomanagement.web.dto.LoginRequestDto;
+import com.spring.todomanagement.web.dto.SignupRequestDto;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/user/signup")
-    public ResponseEntity<CommonResponse> signup(@RequestBody AuthRequestDto requestDto) {
+    public ResponseEntity<CommonResponse> signup(@RequestBody @Valid SignupRequestDto requestDto) {
         userService.signup(requestDto);
         log.info("회원등록");
         return ResponseEntity.ok().body(CommonResponse.builder()
@@ -28,7 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<CommonResponse> login(@RequestBody AuthRequestDto requestDto, HttpServletResponse response) {
+    public ResponseEntity<CommonResponse> login(@RequestBody @Valid LoginRequestDto requestDto,
+                                                HttpServletResponse response) {
         userService.login(requestDto, response);
         return ResponseEntity.ok().body(CommonResponse.builder()
                 .statusCode(HttpStatus.OK.value())

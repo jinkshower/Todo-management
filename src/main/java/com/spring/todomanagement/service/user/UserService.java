@@ -4,14 +4,17 @@ import com.spring.todomanagement.auth.JwtUtil;
 import com.spring.todomanagement.domain.user.Role;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
-import com.spring.todomanagement.web.dto.AuthRequestDto;
+import com.spring.todomanagement.web.dto.LoginRequestDto;
+import com.spring.todomanagement.web.dto.SignupRequestDto;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -20,7 +23,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public void signup(AuthRequestDto requestDto) {
+    public void signup(SignupRequestDto requestDto) {
         String name = requestDto.getName();
         String password = passwordEncoder.encode(requestDto.getPassword());
 
@@ -36,7 +39,7 @@ public class UserService {
                 .build());
     }
 
-    public void login(AuthRequestDto requestDto, HttpServletResponse response) {
+    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
         String name = requestDto.getName();
         String password = requestDto.getPassword();
 
