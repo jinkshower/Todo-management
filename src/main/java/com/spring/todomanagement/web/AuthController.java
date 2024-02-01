@@ -11,16 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @RestController
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/user/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<CommonResponse<String>> signup(@RequestBody @Valid SignupRequestDto requestDto) {
         authService.signup(requestDto);
         log.info("회원등록");
@@ -29,7 +31,7 @@ public class AuthController {
                         .data("회원등록 되었습니다.").build());
     }
 
-    @PostMapping("/user/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<CommonResponse<String>> login(@RequestBody @Valid LoginRequestDto requestDto,
                                                 HttpServletResponse response) {
         authService.login(requestDto, response);

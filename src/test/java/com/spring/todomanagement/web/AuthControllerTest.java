@@ -49,7 +49,7 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        String url = "http://localhost:" + port + "/user/signup";
+        String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
@@ -80,7 +80,7 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        String url = "http://localhost:" + port + "/user/login";
+        String url = "http://localhost:" + port + "/api/auth/login";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
@@ -102,7 +102,7 @@ class AuthControllerTest {
                 .password(password)
                 .build();
 
-        String url = "http://localhost:" + port + "/user/signup";
+        String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
@@ -123,7 +123,7 @@ class AuthControllerTest {
                 .password(input)
                 .build();
 
-        String url = "http://localhost:" + port + "/user/signup";
+        String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
