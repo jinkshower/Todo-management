@@ -37,6 +37,6 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         }
         String name = jwtUtil.getUserInfoFromToken(token).getSubject();
 
-        return new UserDto(name);
+        return UserDto.builder().name(name).build();
     }
 }
