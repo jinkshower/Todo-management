@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CommonResponse> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<CommonResponse<String>> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.info("회원가입 실패");
-        return ResponseEntity.badRequest().body(CommonResponse.builder()
+        return ResponseEntity.badRequest().body(CommonResponse.<String>builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(message).build());
+                .data(message).build());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<CommonResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<CommonResponse<String>> handleIllegalArgumentException(IllegalArgumentException e) {
         log.info("서비스 검증 실패");
-        return ResponseEntity.badRequest().body(CommonResponse.builder()
+        return ResponseEntity.badRequest().body(CommonResponse.<String>builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(e.getMessage()).build());
+                .data(e.getMessage()).build());
     }
 }

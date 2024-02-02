@@ -10,9 +10,7 @@ import com.spring.todomanagement.web.dto.TodoResponseDto;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -87,7 +85,29 @@ class TodoControllerTest {
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         List<String> list = response.jsonPath().getList("data");
-        assertThat(list.size()).isEqualTo(3);
+        assertThat(list.size()).isEqualTo(2);
+    }
+
+    @DisplayName("특정 할일을 id로 조회할 수 있다")
+    @Test
+    void test4() {
+        //given
+        requestTodoPost(bodyMap(), validToken);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .when().get("/api/todos/1")
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.body().asString()).contains("hiyen", "1");
+    }
+
+    @AfterEach
+    void clear() {
+        todoRepository.deleteAll();
     }
 
     private ExtractableResponse<Response> requestTodoPost(Map<String, Object> bodyMap, String accessToken) {

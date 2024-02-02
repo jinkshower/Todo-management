@@ -42,4 +42,13 @@ public class TodoController {
                         .message("모든 할일이 조회되었습니다.")
                         .data(todoResponseDtos).build());
     }
+
+    @GetMapping("/todos/{todoId}")
+    public ResponseEntity<CommonResponse<TodoResponseDto>> getTodo(@PathVariable Long todoId) {
+        TodoResponseDto todoResponseDto = todoService.getTodo(todoId);
+        return ResponseEntity.ok().body(CommonResponse.<TodoResponseDto>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("해당 할 일이 조회되었습니다.")
+                        .data(todoResponseDto).build());
+    }
 }
