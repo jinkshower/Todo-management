@@ -1,10 +1,13 @@
 package com.spring.todomanagement.web.dto;
 
+import com.spring.todomanagement.domain.user.User;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@Builder
+@Getter
+@RequiredArgsConstructor
 public class UserDto {
-    private final String name;
+    private final User user;
 }
