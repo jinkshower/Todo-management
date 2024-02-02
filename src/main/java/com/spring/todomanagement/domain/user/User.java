@@ -20,19 +20,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
     @Builder
-    public User(Long id, String name, String password, Role role) {
+    public User(Long id, String name, String password) {
         this.id = id;
         this.name = name;
         this.password = password;
-        this.role = role;
-    }
-
-    public String getRoleKey() {
-        return role.getKey();
     }
 }

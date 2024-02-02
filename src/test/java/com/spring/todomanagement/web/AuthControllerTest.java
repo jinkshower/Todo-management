@@ -1,7 +1,6 @@
 package com.spring.todomanagement.web;
 
 import com.spring.todomanagement.auth.JwtUtil;
-import com.spring.todomanagement.domain.user.Role;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
@@ -9,7 +8,6 @@ import com.spring.todomanagement.web.dto.SignupRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,7 +71,6 @@ class AuthControllerTest {
         userRepository.save(User.builder()
                 .name(name)
                 .password(passwordEncoder.encode(password))
-                .role(Role.USER)
                 .build());
 
         LoginRequestDto requestDto = LoginRequestDto.builder()

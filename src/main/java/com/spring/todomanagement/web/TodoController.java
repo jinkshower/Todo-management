@@ -1,10 +1,8 @@
 package com.spring.todomanagement.web;
 
-import com.spring.todomanagement.auth.JwtUtil;
 import com.spring.todomanagement.domain.user.Login;
 import com.spring.todomanagement.web.dto.TodoPostRequestDto;
 import com.spring.todomanagement.web.dto.UserDto;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,5 @@
 package com.spring.todomanagement.domain.todo;
 
-import com.spring.todomanagement.domain.user.Role;
 import jakarta.persistence.*;
 
 @Entity

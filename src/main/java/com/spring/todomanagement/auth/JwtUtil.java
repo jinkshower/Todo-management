@@ -1,6 +1,5 @@
 package com.spring.todomanagement.auth;
 
-import com.spring.todomanagement.domain.user.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -34,7 +33,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String name, Role role) {
+    public String createToken(String name) {
         Date date = new Date();
 
         return BEARER_PREFIX +

@@ -1,7 +1,6 @@
 package com.spring.todomanagement.service.user;
 
 import com.spring.todomanagement.auth.JwtUtil;
-import com.spring.todomanagement.domain.user.Role;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
@@ -35,7 +34,6 @@ public class AuthService {
         userRepository.save(User.builder()
                 .name(name)
                 .password(password)
-                .role(Role.USER)
                 .build());
     }
 
@@ -51,7 +49,7 @@ public class AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createToken(user.getName(), user.getRole());
+        String token = jwtUtil.createToken(user.getName());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
     }
 }
