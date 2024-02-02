@@ -1,6 +1,8 @@
 package com.spring.todomanagement.web;
 
 import com.spring.todomanagement.auth.JwtUtil;
+import com.spring.todomanagement.web.dto.LoginRequestDto;
+import com.spring.todomanagement.web.dto.SignupRequestDto;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -24,9 +26,6 @@ class TodoControllerTest {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
@@ -49,7 +48,7 @@ class TodoControllerTest {
     @Test
     void test2() {
         //given
-        String token = getValidToken();
+        String token = getValidToken("hiyen", "12345678");
 
         //when
         ExtractableResponse<Response> response = requestTodoPost(bodyMap(), token);
@@ -68,10 +67,34 @@ class TodoControllerTest {
                 .extract();
     }
 
-    private String getValidToken() {
-        return jwtUtil.createToken("hiyen");
+    private String getValidToken(String name, String password) {
+        signup(name, password);
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .name(name)
+                .password(password)
+                .build();
+        ExtractableResponse<Response> loginResponse = RestAssured.given().log().all()
+                .body(loginRequestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/api/auth/login")
+                .then().log().all()
+                .extract();
+        return loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
     }
 
+    private void signup(String name, String password) {
+        SignupRequestDto requestDto = SignupRequestDto.builder()
+                .name(name)
+                .password(password)
+                .build();
+        ExtractableResponse<Response> extract = RestAssured.given().log().all()
+                .body(requestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/api/auth/signup")
+                .then().log().all()
+                .extract();
+    }
 
     private Map<String, Object> bodyMap() {
         Map<String, Object> map = new HashMap<>();
