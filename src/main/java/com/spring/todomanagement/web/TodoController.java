@@ -9,10 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,5 +32,14 @@ public class TodoController {
                         .statusCode(HttpStatus.CREATED.value())
                         .message("할일이 등록되었습니다.")
                         .data(responseDto).build());
+    }
+
+    @GetMapping("/todos")
+    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> getAllTodos() {
+        List<TodoResponseDto> todoResponseDtos = todoService.getAllTodos();
+        return ResponseEntity.ok().body(CommonResponse.<List<TodoResponseDto>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("모든 할일이 조회되었습니다.")
+                        .data(todoResponseDtos).build());
     }
 }

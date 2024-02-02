@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class TodoService {
@@ -20,5 +22,12 @@ public class TodoService {
         Todo entity = requestDto.toEntity(user);
         todoRepository.save(entity);
         return new TodoResponseDto(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TodoResponseDto> getAllTodos() {
+        return todoRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(TodoResponseDto::new)
+                .toList();
     }
 }
