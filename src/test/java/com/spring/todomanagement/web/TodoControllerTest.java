@@ -1,6 +1,8 @@
 package com.spring.todomanagement.web;
 
 import com.spring.todomanagement.auth.JwtUtil;
+import com.spring.todomanagement.domain.todo.Todo;
+import com.spring.todomanagement.domain.todo.TodoRepository;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
 import com.spring.todomanagement.web.dto.SignupRequestDto;
 import io.restassured.RestAssured;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,9 +29,18 @@ class TodoControllerTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private TodoRepository todoRepository;
+
+    private Long userId;
+    private String validToken;
+
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
+        TokenResponse tokenResponse = getValidUserInfo("hiyen", "12345678");
+        userId = tokenResponse.getUserId();
+        validToken = tokenResponse.getToken();
     }
 
     @DisplayName("토큰 검증을 통과하지 못한 유저는 일정을 등록할 수 없다")
@@ -47,14 +59,13 @@ class TodoControllerTest {
     @DisplayName("토큰 검증을 통과한 유저는 일정을 등록할 수 있다")
     @Test
     void test2() {
-        //given
-        String token = getValidToken("hiyen", "12345678");
-
-        //when
-        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), token);
+        //given//when
+        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), validToken);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        List<Todo> foundTodos = todoRepository.findAllByUserId(userId);
+        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
     }
 
     private ExtractableResponse<Response> requestTodoPost(Map<String, Object> bodyMap, String accessToken) {
@@ -67,7 +78,7 @@ class TodoControllerTest {
                 .extract();
     }
 
-    private String getValidToken(String name, String password) {
+    private TokenResponse getValidUserInfo(String name, String password) {
         signup(name, password);
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .name(name)
@@ -79,7 +90,9 @@ class TodoControllerTest {
                 .when().post("/api/auth/login")
                 .then().log().all()
                 .extract();
-        return loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
+        Integer id = loginResponse.body().jsonPath().get("data");
+        String token = loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
+        return new TokenResponse(id.longValue(), token);
     }
 
     private void signup(String name, String password) {
@@ -87,7 +100,7 @@ class TodoControllerTest {
                 .name(name)
                 .password(password)
                 .build();
-        ExtractableResponse<Response> extract = RestAssured.given().log().all()
+        ExtractableResponse<Response> signupResponse = RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
@@ -102,5 +115,24 @@ class TodoControllerTest {
         map.put("title", "myTitle");
         map.put("content", "myContent");
         return map;
+    }
+
+    class TokenResponse {
+        private Long userId;
+
+        private String token;
+
+        public TokenResponse(Long userId, String token) {
+            this.userId = userId;
+            this.token = token;
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public String getToken() {
+            return token;
+        }
     }
 }

@@ -28,15 +28,16 @@ public class AuthController {
         log.info("회원등록");
         return ResponseEntity.ok().body(CommonResponse.<String>builder()
                 .statusCode(HttpStatus.CREATED.value())
-                .data("회원등록 되었습니다.").build());
+                .data("회원등록 되었습니다").build());
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<CommonResponse<String>> login(@RequestBody @Valid LoginRequestDto requestDto,
+    public ResponseEntity<CommonResponse<Long>> login(@RequestBody @Valid LoginRequestDto requestDto,
                                                         HttpServletResponse response) {
-        authService.login(requestDto, response);
-        return ResponseEntity.ok().body(CommonResponse.<String>builder()
+        Long id = authService.login(requestDto, response);
+        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
                 .statusCode(HttpStatus.OK.value())
-                .data("로그인 되었습니다.").build());
+                .message("로그인 되었습니다.")
+                .data(id).build());
     }
 }

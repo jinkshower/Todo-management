@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -30,14 +31,17 @@ public class AuthService {
         if (foundUserByName.isPresent()) {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
-
+        User user = User.builder()
+                        .name(name)
+                        .password(password)
+                        .build();
         userRepository.save(User.builder()
                 .name(name)
                 .password(password)
                 .build());
     }
 
-    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
+    public Long login(LoginRequestDto requestDto, HttpServletResponse response) {
         String name = requestDto.getName();
         String password = requestDto.getPassword();
 
@@ -51,5 +55,6 @@ public class AuthService {
 
         String token = jwtUtil.createToken(user.getName());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        return user.getId();
     }
 }
