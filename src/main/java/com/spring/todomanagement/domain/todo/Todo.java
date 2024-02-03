@@ -1,11 +1,14 @@
 package com.spring.todomanagement.domain.todo;
 
 import com.spring.todomanagement.domain.user.User;
+import com.spring.todomanagement.web.dto.TodoUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -38,10 +41,18 @@ public class Todo extends Timestamped{
         this.user = user;
     }
 
-    public void update(String title, String content) {
-        this.title = title;
-        this.content = content;
+    public void update(User user, TodoUpdateRequestDto requestDto) {
+        validate(user);
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
     }
+
+    private void validate(User user) {
+        if (!Objects.equals(this.user.getId(), user.getId())) {
+            throw new IllegalArgumentException("올바른 유저가 아닙니다");
+        }
+    }
+
 
     public void done() {
         todoStatus = TodoStatus.DONE;

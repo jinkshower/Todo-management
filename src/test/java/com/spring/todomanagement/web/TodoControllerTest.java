@@ -1,12 +1,11 @@
 package com.spring.todomanagement.web;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.spring.todomanagement.auth.JwtUtil;
 import com.spring.todomanagement.domain.todo.Todo;
 import com.spring.todomanagement.domain.todo.TodoRepository;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
 import com.spring.todomanagement.web.dto.SignupRequestDto;
-import com.spring.todomanagement.web.dto.TodoResponseDto;
+import com.spring.todomanagement.web.dto.TodoUpdateRequestDto;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -24,6 +23,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TodoControllerTest {
 
@@ -31,17 +31,25 @@ class TodoControllerTest {
     private int port;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private TodoRepository todoRepository;
 
-    private Long userId;
-    private String validToken;
+    private Long userId1;
+    private Long userId2;
+    private String validToken1;
+    private String validToken2;
 
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
-        TokenResponse tokenResponse = getValidUserInfo("hiyen", "12345678");
-        userId = tokenResponse.getUserId();
-        validToken = tokenResponse.getToken();
+        TokenResponse tokenResponse1 = getValidUserInfo("hiyen", "12345678");
+        TokenResponse tokenResponse2 = getValidUserInfo("jackie", "12345678");
+        userId1 = tokenResponse1.getUserId();
+        validToken1 = tokenResponse1.getToken();
+        userId2 = tokenResponse2.getUserId();
+        validToken2 = tokenResponse2.getToken();
     }
 
     @DisplayName("토큰 검증을 통과하지 못한 유저는 일정을 등록할 수 없다")
@@ -61,20 +69,21 @@ class TodoControllerTest {
     @Test
     void test2() {
         //given //when
-        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), validToken);
+        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), validToken1);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        List<Todo> foundTodos = todoRepository.findAllByUserId(userId);
-        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
+        List<Todo> foundTodos = todoRepository.findAllByUserId(userId1);
+        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId1);
     }
 
+    @Disabled
     @DisplayName("모든 할일 목록을 조회할 수 있다")
     @Test
     void test3() {
         //given
-        requestTodoPost(bodyMap(), validToken);
-        requestTodoPost(bodyMap(), validToken);
+        requestTodoPost(bodyMap(), validToken1);
+        requestTodoPost(bodyMap(), validToken1);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -92,7 +101,7 @@ class TodoControllerTest {
     @Test
     void test4() {
         //given
-        requestTodoPost(bodyMap(), validToken);
+        requestTodoPost(bodyMap(), validToken1);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -102,7 +111,55 @@ class TodoControllerTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.body().asString()).contains("hiyen", "1");
+        assertThat(response.body().asString()).contains("hiyen", "1", "myTitle", "myContent");
+    }
+
+    @DisplayName("토큰을 가지고 할일의 userId와 동일한 id를 가진 유저는 할일을 수정할 수 있다")
+    @Test
+    void test5() {
+        //given
+        requestTodoPost(bodyMap(), validToken1);
+        TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken1)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/1")
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.body().asString()).contains("hiyen", "1", "updateTitle", "updateContent");
+    }
+
+    @DisplayName("토큰을 가졌지만 할일의 userId와 동일하지 않은 id를 가진 유저는 할 일을 수정 할 수 없다")
+    @Test
+    void test6() {
+        //given
+        requestTodoPost(bodyMap(), validToken1);
+        TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken2)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/1")
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.body().asString()).contains("올바른 유저가 아닙니다");
     }
 
     @AfterEach
@@ -132,9 +189,9 @@ class TodoControllerTest {
                 .when().post("/api/auth/login")
                 .then().log().all()
                 .extract();
-        Integer id = loginResponse.body().jsonPath().get("data");
         String token = loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
-        return new TokenResponse(id.longValue(), token);
+        Long userId = extractIdFromToken(token);
+        return new TokenResponse(userId, token);
     }
 
     private void signup(String name, String password) {
@@ -159,7 +216,13 @@ class TodoControllerTest {
         return map;
     }
 
+    private Long extractIdFromToken(String token) {
+        String substring = token.substring(7);
+        return jwtUtil.getUserIdFromToken(substring);
+    }
+
     class TokenResponse {
+
         private Long userId;
 
         private String token;

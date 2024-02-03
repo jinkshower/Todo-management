@@ -4,6 +4,7 @@ import com.spring.todomanagement.domain.user.Login;
 import com.spring.todomanagement.service.todo.TodoService;
 import com.spring.todomanagement.web.dto.TodoResponseDto;
 import com.spring.todomanagement.web.dto.TodoSaveRequestDto;
+import com.spring.todomanagement.web.dto.TodoUpdateRequestDto;
 import com.spring.todomanagement.web.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,18 @@ public class TodoController {
         return ResponseEntity.ok().body(CommonResponse.<TodoResponseDto>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("해당 할 일이 조회되었습니다.")
+                        .data(todoResponseDto).build());
+    }
+
+    @PatchMapping("/todos/{todoId}")
+    public ResponseEntity<CommonResponse<TodoResponseDto>> updateTodo(
+            @PathVariable Long todoId,
+            @Login UserDto userDto,
+            @RequestBody TodoUpdateRequestDto requestDto) {
+        TodoResponseDto todoResponseDto = todoService.updateTodo(todoId, userDto, requestDto);
+        return ResponseEntity.ok().body(CommonResponse.<TodoResponseDto>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("해당 할 일이 수정되었습니다.")
                         .data(todoResponseDto).build());
     }
 }
