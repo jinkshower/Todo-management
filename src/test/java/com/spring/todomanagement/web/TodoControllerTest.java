@@ -36,8 +36,7 @@ class TodoControllerTest {
     @Autowired
     private TodoRepository todoRepository;
 
-    private Long userId1;
-    private Long userId2;
+    private Long userId;
     private String validToken1;
     private String validToken2;
 
@@ -45,10 +44,9 @@ class TodoControllerTest {
     public void setUp() {
         RestAssured.port = port;
         TokenResponse tokenResponse1 = getValidUserInfo("hiyen", "12345678");
-        TokenResponse tokenResponse2 = getValidUserInfo("jackie", "12345678");
-        userId1 = tokenResponse1.getUserId();
+        TokenResponse tokenResponse2 = getValidUserInfo("jackie", "87654321");
+        userId = tokenResponse1.getUserId();
         validToken1 = tokenResponse1.getToken();
-        userId2 = tokenResponse2.getUserId();
         validToken2 = tokenResponse2.getToken();
     }
 
@@ -73,8 +71,8 @@ class TodoControllerTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        List<Todo> foundTodos = todoRepository.findAllByUserId(userId1);
-        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId1);
+        List<Todo> foundTodos = todoRepository.findAllByUserId(userId);
+        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
     }
 
     @Disabled

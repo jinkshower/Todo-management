@@ -24,7 +24,8 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/todos")
-    public ResponseEntity<CommonResponse<TodoResponseDto>> saveTodo(@Login UserDto userDto, @RequestBody TodoSaveRequestDto requestDto) {
+    public ResponseEntity<CommonResponse<TodoResponseDto>> saveTodo(@Login UserDto userDto,
+                                                                    @RequestBody TodoSaveRequestDto requestDto) {
         log.info(String.valueOf(userDto.getUser().getId()));
         log.info(userDto.getUser().getName());
         log.info(userDto.getUser().getPassword());

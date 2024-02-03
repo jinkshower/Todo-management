@@ -8,12 +8,14 @@ import com.spring.todomanagement.web.dto.TodoSaveRequestDto;
 import com.spring.todomanagement.web.dto.TodoUpdateRequestDto;
 import com.spring.todomanagement.web.dto.UserDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TodoService {
@@ -24,6 +26,7 @@ public class TodoService {
     public TodoResponseDto saveTodo(User user, TodoSaveRequestDto requestDto) {
         Todo entity = requestDto.toEntity(user);
         todoRepository.save(entity);
+        log.info("저장 되었습니다.");
         return new TodoResponseDto(entity);
     }
 
