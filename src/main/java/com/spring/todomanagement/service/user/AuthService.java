@@ -31,17 +31,13 @@ public class AuthService {
         if (foundUserByName.isPresent()) {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
-        User user = User.builder()
-                        .name(name)
-                        .password(password)
-                        .build();
         userRepository.save(User.builder()
                 .name(name)
                 .password(password)
                 .build());
     }
 
-    public Long login(LoginRequestDto requestDto, HttpServletResponse response) {
+    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
         String name = requestDto.getName();
         String password = requestDto.getPassword();
 
@@ -53,8 +49,7 @@ public class AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String token = jwtUtil.createToken(user.getName());
+        String token = jwtUtil.createToken(user.getId());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-        return user.getId();
     }
 }

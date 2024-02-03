@@ -32,12 +32,11 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<CommonResponse<Long>> login(@RequestBody @Valid LoginRequestDto requestDto,
+    public ResponseEntity<CommonResponse<String>> login(@RequestBody @Valid LoginRequestDto requestDto,
                                                         HttpServletResponse response) {
-        Long id = authService.login(requestDto, response);
-        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
+        authService.login(requestDto, response);
+        return ResponseEntity.ok().body(CommonResponse.<String>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("로그인 되었습니다.")
-                .data(id).build());
+                .data("로그인 되었습니다").build());
     }
 }

@@ -17,7 +17,6 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
     private final long TOKEN_TIME = 60 * 60 * 1000L * 60 * 60;
 
@@ -33,12 +32,12 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String name) {
+    public String createToken(Long userId) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(name) // 사용자 식별자값(ID)
+                        .setSubject(String.valueOf(userId)) // 사용자 식별자값(ID)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
@@ -49,7 +48,7 @@ public class JwtUtil {
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.split(" ")[1].trim();
+            return bearerToken.substring(7);
         }
         return null;
     }
@@ -71,7 +70,7 @@ public class JwtUtil {
         return false;
     }
 
-    public Claims getUserInfoFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    public Long getUserIdFromToken(String token) {
+        return Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject());
     }
 }

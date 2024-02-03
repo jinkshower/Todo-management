@@ -39,9 +39,9 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         if (!jwtUtil.validateToken(token)) {
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
-        String name = jwtUtil.getUserInfoFromToken(token).getSubject();
-        User found = userRepository.findByName(name).orElseThrow(
-                () -> new IllegalArgumentException("없는 이름입니다.")
+        Long userId = jwtUtil.getUserIdFromToken(token);
+        User found = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("없는 유저입니다.")
         );
 
         return new UserDto(found);
