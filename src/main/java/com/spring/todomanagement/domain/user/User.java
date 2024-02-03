@@ -1,5 +1,6 @@
 package com.spring.todomanagement.domain.user;
 
+import com.spring.todomanagement.domain.comment.Comment;
 import com.spring.todomanagement.domain.todo.Todo;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -27,6 +28,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Todo> todos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments = new ArrayList<>();
+
     @Builder
     public User(String name, String password) {
         this.name = name;
@@ -36,5 +40,10 @@ public class User {
     public void addTodo(Todo todo) {
         todos.add(todo);
         todo.setUser(this);
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setUser(this);
     }
 }

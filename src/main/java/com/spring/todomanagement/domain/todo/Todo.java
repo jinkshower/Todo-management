@@ -1,5 +1,6 @@
 package com.spring.todomanagement.domain.todo;
 
+import com.spring.todomanagement.domain.comment.Comment;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.web.dto.TodoUpdateRequestDto;
 import jakarta.persistence.*;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -34,11 +37,19 @@ public class Todo extends Timestamped{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "todo")
+    private List<Comment> comments = new ArrayList<>();
+
     @Builder
     public Todo(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.user = user;
+    }
+
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+        comment.setTodo(this);
     }
 
     public void update(User user, TodoUpdateRequestDto requestDto) {
