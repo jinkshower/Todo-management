@@ -1,5 +1,6 @@
 package com.spring.todomanagement.web;
 
+import com.spring.todomanagement.domain.todo.Todo;
 import com.spring.todomanagement.domain.user.Login;
 import com.spring.todomanagement.service.todo.TodoService;
 import com.spring.todomanagement.web.dto.TodoResponseDto;
@@ -63,5 +64,15 @@ public class TodoController {
                         .statusCode(HttpStatus.OK.value())
                         .message("해당 할 일이 수정되었습니다.")
                         .data(todoResponseDto).build());
+    }
+
+    @PatchMapping("/todos/{todoId}/status")
+    public ResponseEntity<CommonResponse<Long>> changeTodoStatus(
+            @PathVariable Long todoId,
+            @Login UserDto userDto) {
+        Long changedTodoId = todoService.changeTodoStatus(todoId, userDto);
+        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .data(changedTodoId).build());
     }
 }

@@ -47,19 +47,18 @@ public class Todo extends Timestamped{
         this.content = requestDto.getContent();
     }
 
+    public void changeStatus(User user) {
+        validate(user);
+        if (this.todoStatus == TodoStatus.DONE) {
+            this.todoStatus = TodoStatus.NOT_DONE;
+        } else {
+            this.todoStatus = TodoStatus.DONE;
+        }
+    }
+
     private void validate(User user) {
         if (!Objects.equals(this.user.getId(), user.getId())) {
             throw new IllegalArgumentException("올바른 유저가 아닙니다");
         }
     }
-
-
-    public void done() {
-        todoStatus = TodoStatus.DONE;
-    }
-
-    public void undone() {
-        todoStatus = TodoStatus.NOT_DONE;
-    }
-
 }

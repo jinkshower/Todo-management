@@ -49,6 +49,15 @@ public class TodoService {
         return new TodoResponseDto(todo);
     }
 
+    @Transactional
+    public Long changeTodoStatus(Long todoId, UserDto userDto) {
+        User user = userDto.getUser();
+        Todo todo = findTodo(todoId);
+
+        todo.changeStatus(user);
+        return todo.getId();
+    }
+
     private Todo findTodo(Long todoId) {
         return todoRepository.findById(todoId).orElseThrow(
                 () -> new IllegalArgumentException("해당 할일이 존재하지 않습니다.")
