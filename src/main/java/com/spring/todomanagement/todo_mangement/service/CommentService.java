@@ -1,6 +1,9 @@
 package com.spring.todomanagement.todo_mangement.service;
 
 import com.spring.todomanagement.todo_mangement.domain.Comment;
+import com.spring.todomanagement.todo_mangement.exception.InvalidCommentException;
+import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
+import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import com.spring.todomanagement.todo_mangement.repository.CommentRepository;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
@@ -10,16 +13,17 @@ import com.spring.todomanagement.todo_mangement.dto.CommentResponseDto;
 import com.spring.todomanagement.todo_mangement.dto.CommentRequestDto;
 import com.spring.todomanagement.auth.dto.UserDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CommentService {
 
-    private final UserRepository userRepository;
     private final TodoRepository todoRepository;
     private final CommentRepository commentRepository;
 
@@ -46,13 +50,17 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
+    @Transactional
     public Long deleteComment(Long todoId, Long commentId, UserDto userDto) {
         User user = userDto.getUser();
-        Todo todo = findTodo(todoId);
+        findTodo(todoId);
         Comment comment = findComment(commentId);
 
         if (!Objects.equals(comment.getUser().getId(), user.getId())) {
-            throw new IllegalArgumentException("작성자만 댓글을 삭제할 수 있습니다.");
+            String errorMessage = "댓글 삭제 실패 - 작성자 id 불일치. 댓글 작성자 ID: " + comment.getUser().getId()
+                    + ", 요청 사용자 ID: " + user.getId();
+            log.error(errorMessage);
+            throw new InvalidUserException(errorMessage);
         }
         commentRepository.delete(comment);
         return comment.getId();
@@ -60,13 +68,21 @@ public class CommentService {
 
     private Todo findTodo(Long todoId) {
         return todoRepository.findById(todoId).orElseThrow(
-                () -> new IllegalArgumentException("해당하는 할 일이 없습니다.")
+                () -> {
+                    String errorMessage = "해당하는 할 일이 없습니다. 요청 ID: " + todoId;
+                    log.error(errorMessage);
+                    return new InvalidTodoException(errorMessage);
+                }
         );
     }
 
     private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("해당하는 댓글이 없습니다.")
+                () -> {
+                    String errorMessage = "해당하는 댓글이 없습니다. 요청 ID: " + commentId;
+                    log.error(errorMessage);
+                    return new InvalidCommentException(errorMessage);
+                }
         );
     }
 }

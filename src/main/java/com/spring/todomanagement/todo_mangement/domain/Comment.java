@@ -1,12 +1,16 @@
 package com.spring.todomanagement.todo_mangement.domain;
 
 import com.spring.todomanagement.todo_mangement.dto.CommentRequestDto;
+import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
+import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 @Table(name = "comments")
@@ -43,10 +47,15 @@ public class Comment {
 
     private void validate(User user, Todo todo) {
         if (!this.user.equals(user)) {
-            throw new IllegalArgumentException("작성자가 같아야 합니다.");
+            String errorMessage = "작성자가 다릅니다. 댓글 ID: " + this.id;
+            log.error(errorMessage);
+            throw new InvalidUserException(errorMessage);
+
         }
         if (!this.todo.equals(todo)) {
-            throw new IllegalArgumentException("다른 할일에 있는 댓글입니다.");
+            String errorMessage = "다른 할일에 있는 댓글입니다. 댓글 ID: " + this.id;
+            log.error(errorMessage);
+            throw new InvalidTodoException(errorMessage);
         }
     }
 }

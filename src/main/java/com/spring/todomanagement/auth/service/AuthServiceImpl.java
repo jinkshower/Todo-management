@@ -31,8 +31,9 @@ public class AuthServiceImpl implements AuthService{
 
         Optional<User> foundUserByName = userRepository.findByName(name);
         if (foundUserByName.isPresent()) {
-            log.error("회원이름 중복");
-            throw new AuthenticationException("이미 존재하는 회원이름입니다.");
+            String errorMessage = "회원이름 중복입니다. 요청 이름: " + name;
+            log.error(errorMessage);
+            throw new AuthenticationException(errorMessage);
         }
         userRepository.save(User.builder()
                 .name(name)
@@ -47,14 +48,16 @@ public class AuthServiceImpl implements AuthService{
 
         User user = userRepository.findByName(name).orElseThrow(
                 () -> {
-                    log.error("이름을 찾을 수 없습니다.");
-                    return new LoginFailedException();
+                    String errorMessage = "이름을 찾을 수 없습니다. 요청 이름: " + name;
+                    log.error(errorMessage);
+                    return new LoginFailedException(errorMessage);
                 }
         );
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            log.error("비밀번호가 다릅니다.");
-            throw new LoginFailedException();
+            String errorMessage = "비밀번호가 다릅니다. 요청 이름: " + name;
+            log.error(errorMessage);
+            throw new LoginFailedException(errorMessage);
         }
 
         return jwtUtil.createToken(user.getId());

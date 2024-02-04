@@ -129,7 +129,7 @@ class CommentAcceptanceTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(response.body().asString()).contains("작성자가 같아야 합니다.");
+        assertThat(response.body().asString()).contains("작성자가 다릅니다.");
     }
 
     @DisplayName("토큰이 있고 해당 작성자가 작성한 댓글을 삭제할 수 있다")
@@ -171,7 +171,7 @@ class CommentAcceptanceTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(response.body().asString()).contains("작성자만 댓글을 삭제할 수 있습니다.");
+        assertThat(response.body().asString()).contains("댓글 삭제 실패");
     }
 
     private ExtractableResponse<Response> requestPostComment(Long todoId, String accessToken) {

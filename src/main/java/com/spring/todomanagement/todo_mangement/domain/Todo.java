@@ -1,16 +1,19 @@
 package com.spring.todomanagement.todo_mangement.domain;
 
 import com.spring.todomanagement.todo_mangement.dto.TodoUpdateRequestDto;
+import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 @Table(name = "todos")
@@ -66,8 +69,11 @@ public class Todo extends Timestamped{
     }
 
     private void validate(User user) {
-        if (!Objects.equals(this.user.getId(), user.getId())) {
-            throw new IllegalArgumentException("올바른 유저가 아닙니다");
-        }
+            if (!Objects.equals(this.user.getId(), user.getId())) {
+                String errorMessage = "작성자가 다릅니다. 할일 작성자 ID: " + this.user.getId()
+                        + ", 요청 사용자 ID: " + user.getId();
+                log.error(errorMessage);
+                throw new InvalidUserException(errorMessage);
+            }
     }
 }

@@ -35,14 +35,16 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
         String token = jwtUtil.getJwtFromHeader(request);
         if (!jwtUtil.validateToken(token)) {
-            log.error("토큰 검증에 실패했습니다.");
-            throw new InvalidTokenException();
+            String errorMessage = "토큰 검증에 실패했습니다.";
+            log.error(errorMessage);
+            throw new InvalidTokenException(errorMessage);
         }
         Long userId = jwtUtil.getUserIdFromToken(token);
         User found = userRepository.findById(userId).orElseThrow(
                 () -> {
-                    log.error("id로 유저를 찾을 수 없습니다.");
-                    return new AuthenticationException("없는 유저입니다.");
+                    String errorMessage = "ID로 유저를 찾을 수 없습니다. 요청 ID: " + userId;
+                    log.error(errorMessage);
+                    return new AuthenticationException(errorMessage);
                 }
         );
         log.debug("검증 통과!");

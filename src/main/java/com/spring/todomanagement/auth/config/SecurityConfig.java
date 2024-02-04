@@ -17,6 +17,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    //jwt 토큰 헤더 검증을 위해 security 적용 해제
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);

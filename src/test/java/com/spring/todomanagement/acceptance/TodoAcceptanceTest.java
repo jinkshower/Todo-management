@@ -157,7 +157,7 @@ class TodoAcceptanceTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(response.body().asString()).contains("올바른 유저가 아닙니다");
+        assertThat(response.body().asString()).contains("작성자가 다릅니다.");
     }
 
     @DisplayName("토큰을 가지고 할일의 userId와 동일한 id를 가진 유저는 할일 상태를 변경할 수 있다")
@@ -178,7 +178,7 @@ class TodoAcceptanceTest {
         assertThat(response.body().asString()).contains("1");
     }
 
-    @DisplayName("토큰을 가졌지만 할일의 userId와 동일하지 않은 id를 가진 유저는 할 일을 수정 할 수 없다")
+    @DisplayName("토큰을 가졌지만 할일의 userId와 동일하지 않은 id를 가진 유저는 할 일의 상태를 수정 할 수 없다")
     @Test
     void test8() {
         //given
@@ -193,7 +193,7 @@ class TodoAcceptanceTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(response.body().asString()).contains("올바른 유저가 아닙니다");
+        assertThat(response.body().asString()).contains("작성자가 다릅니다.");
     }
 
     @DisplayName("토큰을 가지고 할일의 userId와 동일한 id를 가진 유저는 할일을 삭제할 수 있다")

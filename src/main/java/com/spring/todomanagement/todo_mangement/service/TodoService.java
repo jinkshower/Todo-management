@@ -1,6 +1,8 @@
 package com.spring.todomanagement.todo_mangement.service;
 
 import com.spring.todomanagement.todo_mangement.domain.Todo;
+import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
+import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.domain.User;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
@@ -26,7 +28,6 @@ public class TodoService {
     public TodoResponseDto saveTodo(User user, TodoSaveRequestDto requestDto) {
         Todo entity = requestDto.toEntity(user);
         todoRepository.save(entity);
-        log.info("저장 되었습니다.");
         return new TodoResponseDto(entity);
     }
 
@@ -66,7 +67,10 @@ public class TodoService {
         User user = userDto.getUser();
         Todo todo = findTodo(todoId);
         if (!Objects.equals(todo.getUser().getId(), user.getId())) {
-            throw new IllegalArgumentException("작성자만 할일을 삭제할 수 있습니다.");
+            String errorMessage = "할일 삭제 실패 - 작성자 id 불일치. 할일 작성자 ID: " + todo.getUser().getId()
+                    + ", 요청 사용자 ID: " + user.getId();
+            log.error(errorMessage);
+            throw new InvalidUserException(errorMessage);
         }
         todoRepository.delete(todo);
         return todo.getId();
@@ -74,7 +78,11 @@ public class TodoService {
 
     private Todo findTodo(Long todoId) {
         return todoRepository.findById(todoId).orElseThrow(
-                () -> new IllegalArgumentException("해당 할일이 존재하지 않습니다.")
+                () -> {
+                    String errorMessage = "없는 할일입니다. 요청 ID: " + todoId;
+                    log.error(errorMessage);
+                    return new InvalidTodoException(errorMessage);
+                }
         );
     }
 }
