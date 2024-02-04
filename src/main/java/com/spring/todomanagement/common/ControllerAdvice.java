@@ -1,5 +1,6 @@
 package com.spring.todomanagement.common;
 
+import com.spring.todomanagement.auth.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,12 @@ public class ControllerAdvice {
         return ResponseEntity.badRequest().body(CommonResponse.<String>builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .data(e.getMessage()).build());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
+        log.error("검증 실패");
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
