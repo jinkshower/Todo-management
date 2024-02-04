@@ -68,6 +68,20 @@ class CommentControllerTest {
         assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
     }
 
+    @DisplayName("토큰이 없는 유저는 할일에 댓글을 달 수 없다")
+    @Test
+    void test2() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(),validToken1);
+        Long postId = todoResponse.jsonPath().getLong("data.id");
+
+        //when
+        ExtractableResponse<Response> response = requestPostComment(postId, "1234");
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
 
 
     private ExtractableResponse<Response> requestPostComment(Long todoId, String accessToken) {
