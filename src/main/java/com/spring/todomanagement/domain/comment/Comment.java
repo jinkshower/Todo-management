@@ -2,6 +2,7 @@ package com.spring.todomanagement.domain.comment;
 
 import com.spring.todomanagement.domain.todo.Todo;
 import com.spring.todomanagement.domain.user.User;
+import com.spring.todomanagement.web.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,5 +36,19 @@ public class Comment {
         this.content = content;
         this.user = user;
         this.todo = todo;
+    }
+
+    public void update(User user, Todo todo, CommentRequestDto requestDto) {
+        validate(user, todo);
+        this.content = requestDto.getContent();
+    }
+
+    private void validate(User user, Todo todo) {
+        if (!this.user.equals(user)) {
+            throw new IllegalArgumentException("작성자가 같아야 합니다.");
+        }
+        if (!this.todo.equals(todo)) {
+            throw new IllegalArgumentException("다른 할일에 있는 댓글입니다.");
+        }
     }
 }

@@ -7,8 +7,7 @@ import com.spring.todomanagement.domain.todo.TodoRepository;
 import com.spring.todomanagement.domain.user.User;
 import com.spring.todomanagement.domain.user.UserRepository;
 import com.spring.todomanagement.web.dto.CommentResponseDto;
-import com.spring.todomanagement.web.dto.CommentSaveRequestDto;
-import com.spring.todomanagement.web.dto.TodoResponseDto;
+import com.spring.todomanagement.web.dto.CommentRequestDto;
 import com.spring.todomanagement.web.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,18 +22,30 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CommentResponseDto saveComment(Long todoId, UserDto userDto, CommentSaveRequestDto requestDto) {
-        User user = userRepository.findById(userDto.getUser().getId()).orElseThrow(
-                () -> new IllegalArgumentException("없는 사용자입니다.")
-        );
-
+    public CommentResponseDto saveComment(Long todoId, UserDto userDto, CommentRequestDto requestDto) {
         Todo todo = todoRepository.findById(todoId).orElseThrow(
                 () -> new IllegalArgumentException("해당하는 할 일이 없습니다.")
         );
 
-        Comment entity = requestDto.toEntity(user, todo);
+        Comment entity = requestDto.toEntity(userDto.getUser(), todo);
         commentRepository.save(entity);
 
         return new CommentResponseDto(entity);
+    }
+
+    @Transactional
+    public CommentResponseDto updateComment(Long todoId,
+                                            Long commentId,
+                                            UserDto userDto,
+                                            CommentRequestDto requestDto) {
+        User user = userDto.getUser();
+        Todo todo = todoRepository.findById(todoId).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 할 일이 없습니다.")
+        );
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 댓글이 없습니다.")
+        );
+        comment.update(user, todo, requestDto);
+        return new CommentResponseDto(comment);
     }
 }

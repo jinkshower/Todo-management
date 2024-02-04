@@ -2,7 +2,7 @@ package com.spring.todomanagement.web;
 
 import com.spring.todomanagement.domain.user.Login;
 import com.spring.todomanagement.web.dto.CommentResponseDto;
-import com.spring.todomanagement.web.dto.CommentSaveRequestDto;
+import com.spring.todomanagement.web.dto.CommentRequestDto;
 import com.spring.todomanagement.service.comment.CommentService;
 import com.spring.todomanagement.web.dto.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class CommentController {
     public ResponseEntity<CommonResponse<CommentResponseDto>> saveComment(
             @PathVariable Long todoId,
             @Login UserDto userDto,
-            @RequestBody CommentSaveRequestDto requestDto) {
+            @RequestBody CommentRequestDto requestDto) {
         CommentResponseDto responseDto = commentService.saveComment(todoId, userDto, requestDto);
         return ResponseEntity.ok().body(CommonResponse.<CommentResponseDto>builder()
                         .statusCode(HttpStatus.CREATED.value())
@@ -29,4 +29,16 @@ public class CommentController {
                         .data(responseDto).build());
     }
 
+    @PatchMapping("/todos/{todoId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<CommentResponseDto>> updateComment(
+            @PathVariable Long todoId,
+            @PathVariable Long commentId,
+            @Login UserDto userDto,
+            @RequestBody CommentRequestDto requestDto) {
+        CommentResponseDto responseDto = commentService.updateComment(todoId, commentId, userDto, requestDto);
+        return ResponseEntity.ok().body(CommonResponse.<CommentResponseDto>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("댓글이 수정되었습니다")
+                        .data(responseDto).build());
+    }
 }

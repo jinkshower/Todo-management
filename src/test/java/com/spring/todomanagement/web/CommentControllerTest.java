@@ -4,6 +4,7 @@ import com.spring.todomanagement.auth.JwtUtil;
 import com.spring.todomanagement.domain.comment.Comment;
 import com.spring.todomanagement.domain.comment.CommentRepository;
 import com.spring.todomanagement.domain.todo.TodoRepository;
+import com.spring.todomanagement.web.dto.CommentRequestDto;
 import com.spring.todomanagement.web.dto.LoginRequestDto;
 import com.spring.todomanagement.web.dto.SignupRequestDto;
 import io.restassured.RestAssured;
@@ -82,7 +83,57 @@ class CommentControllerTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
+    @DisplayName("토큰이 있고 해당 작성자가 작성한 댓글을 수정할 수 있다")
+    @Test
+    void test3() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(),validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
+        Long commentId = commentResponse.jsonPath().getLong("data.id");
 
+        CommentRequestDto requestDto = CommentRequestDto.builder()
+                .content("updateContent").build();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken1)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/" + todoId + "/comments/" + commentId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.body().asString()).contains("updateContent");
+    }
+
+    @DisplayName("토큰이 있지만 해당 작성자가 아니면 댓글을 수정할 수 없다")
+    @Test
+    void test4() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(),validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
+        Long commentId = commentResponse.jsonPath().getLong("data.id");
+
+        CommentRequestDto requestDto = CommentRequestDto.builder()
+                .content("updateContent").build();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken2)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/" + todoId + "/comments/" + commentId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.body().asString()).contains("작성자가 같아야 합니다.");
+    }
 
     private ExtractableResponse<Response> requestPostComment(Long todoId, String accessToken) {
         return RestAssured.given().log().all()

@@ -10,9 +10,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CommentSaveRequestDto {
+public class CommentRequestDto {
     @NotNull
     private String content;
+
+    @Builder
+    public CommentRequestDto(String content) {
+        this.content = content;
+    }
 
     public Comment toEntity(User user, Todo todo) {
         return Comment.builder()
