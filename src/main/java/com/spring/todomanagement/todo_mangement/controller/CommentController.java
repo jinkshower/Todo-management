@@ -5,6 +5,7 @@ import com.spring.todomanagement.auth.support.Login;
 import com.spring.todomanagement.common.CommonResponse;
 import com.spring.todomanagement.todo_mangement.dto.CommentRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.CommentResponseDto;
+import com.spring.todomanagement.todo_mangement.service.CommentService;
 import com.spring.todomanagement.todo_mangement.service.implementation.CommentServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class CommentController {
 
-    private final CommentServiceImpl commentService;
+    private final CommentService commentService;
 
     @PostMapping("/todos/{todoId}/comments")
     public ResponseEntity<CommonResponse<CommentResponseDto>> saveComment(
