@@ -74,6 +74,18 @@ public class TodoController {
         Long changedTodoId = todoService.changeTodoStatus(todoId, userDto);
         return ResponseEntity.ok().body(CommonResponse.<Long>builder()
                         .statusCode(HttpStatus.OK.value())
+                        .message("해당 할일의 상태가 변경되었습니다.")
                         .data(changedTodoId).build());
+    }
+
+    @DeleteMapping("/todos/{todoId}")
+    public ResponseEntity<CommonResponse<Long>> deleteTodo(
+            @PathVariable Long todoId,
+            @Login UserDto userDto) {
+        Long deletedTodoId = todoService.deleteTodo(todoId, userDto);
+        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("해당 할일이 삭제되었습니다.")
+                        .data(deletedTodoId).build());
     }
 }

@@ -196,6 +196,43 @@ class TodoControllerTest {
         assertThat(response.body().asString()).contains("올바른 유저가 아닙니다");
     }
 
+    @DisplayName("토큰을 가지고 할일의 userId와 동일한 id를 가진 유저는 할일을 삭제할 수 있다")
+    @Test
+    void test9() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken1)
+                .when().delete("/api/todos/" + todoId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.body().asString()).contains(todoId + "");
+    }
+
+    @DisplayName("토큰을 가졌지만 할일의 userId와 동일하지 않은 id를 가진 유저는 할 일을 삭제할 수 없다")
+    @Test
+    void test10() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken2)
+                .when().delete("/api/todos/" + todoId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
     @AfterEach
     void clear() {
         todoRepository.deleteAll();

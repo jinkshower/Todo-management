@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -58,6 +59,17 @@ public class TodoService {
         Todo todo = findTodo(todoId);
 
         todo.changeStatus(user);
+        return todo.getId();
+    }
+
+    @Transactional
+    public Long deleteTodo(Long todoId, UserDto userDto) {
+        User user = userDto.getUser();
+        Todo todo = findTodo(todoId);
+        if (!Objects.equals(todo.getUser().getId(), user.getId())) {
+            throw new IllegalArgumentException("작성자만 할일을 삭제할 수 있습니다.");
+        }
+        todoRepository.delete(todo);
         return todo.getId();
     }
 
