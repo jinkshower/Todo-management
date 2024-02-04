@@ -135,6 +135,48 @@ class CommentControllerTest {
         assertThat(response.body().asString()).contains("작성자가 같아야 합니다.");
     }
 
+    @DisplayName("토큰이 있고 해당 작성자가 작성한 댓글을 삭제할 수 있다")
+    @Test
+    void test5() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(),validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
+        Long commentId = commentResponse.jsonPath().getLong("data.id");
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken1)
+                .when().delete("/api/todos/" + todoId + "/comments/" + commentId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.body().asString()).contains(commentId + "");
+    }
+
+    @DisplayName("토큰이 있지만 해당 작성자가 아니면 댓글을 삭제할 수 없다")
+    @Test
+    void test6() {
+        //given
+        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(),validToken1);
+        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
+        Long commentId = commentResponse.jsonPath().getLong("data.id");
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header("Authorization", validToken2)
+                .when().delete("/api/todos/" + todoId + "/comments/" + commentId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.body().asString()).contains("작성자만 댓글을 삭제할 수 있습니다.");
+    }
+
     private ExtractableResponse<Response> requestPostComment(Long todoId, String accessToken) {
         return RestAssured.given().log().all()
                 .header("Authorization", accessToken)

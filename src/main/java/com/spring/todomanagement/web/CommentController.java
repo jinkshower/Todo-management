@@ -42,15 +42,15 @@ public class CommentController {
                         .data(responseDto).build());
     }
 
-//    @DeleteMapping("/todos/{todoId}/comments/{commentId}")
-//    public ResponseEntity<CommonResponse<Long>> deleteComment(
-//            @PathVariable Long todoId,
-//            @PathVariable Long commentId,
-//            @Login UserDto userDto) {
-//        Long deletedCommentId = commentService.deleteComment(todoId, commentId, userDto);
-//        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
-//                        .statusCode(HttpStatus.OK.value())
-//                        .message("댓글이 삭제되었습니다.")
-//                        .data(deletedCommentId).build());
-//    }
+    @DeleteMapping("/todos/{todoId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<Long>> deleteComment(
+            @PathVariable Long todoId,
+            @PathVariable Long commentId,
+            @Login UserDto userDto) {
+        Long deletedCommentId = commentService.deleteComment(todoId, commentId, userDto);
+        return ResponseEntity.ok().body(CommonResponse.<Long>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("댓글이 삭제되었습니다.")
+                        .data(deletedCommentId).build());
+    }
 }
