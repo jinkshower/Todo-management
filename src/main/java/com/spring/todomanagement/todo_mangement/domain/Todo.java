@@ -35,7 +35,7 @@ public class Todo extends Timestamped{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "todo")
+    @OneToMany(mappedBy = "todo", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
