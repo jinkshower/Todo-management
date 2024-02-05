@@ -7,6 +7,7 @@ import com.spring.todomanagement.todo_mangement.dto.CommentRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.CommentResponseDto;
 import com.spring.todomanagement.todo_mangement.service.CommentService;
 import com.spring.todomanagement.todo_mangement.service.implementation.CommentServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class CommentController {
     public ResponseEntity<CommonResponse<CommentResponseDto>> saveComment(
             @PathVariable Long todoId,
             @Login UserDto userDto,
-            @RequestBody CommentRequestDto requestDto) {
+            @RequestBody @Valid CommentRequestDto requestDto) {
         CommentResponseDto responseDto = commentService.saveComment(todoId, userDto, requestDto);
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(CommonResponse.<CommentResponseDto>builder()
                         .statusCode(HttpStatus.CREATED.value())
@@ -36,7 +37,7 @@ public class CommentController {
             @PathVariable Long todoId,
             @PathVariable Long commentId,
             @Login UserDto userDto,
-            @RequestBody CommentRequestDto requestDto) {
+            @RequestBody @Valid CommentRequestDto requestDto) {
         CommentResponseDto responseDto = commentService.updateComment(todoId, commentId, userDto, requestDto);
         return ResponseEntity.ok().body(CommonResponse.<CommentResponseDto>builder()
                         .statusCode(HttpStatus.OK.value())

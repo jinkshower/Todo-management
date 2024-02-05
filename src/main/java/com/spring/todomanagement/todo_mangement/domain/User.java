@@ -17,10 +17,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(length = 15, nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(length = 10, nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

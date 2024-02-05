@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Todos {
 
-    private List<Todo> todos;
+    private final List<Todo> todos;
     private final List<SearchFilter> filters = new ArrayList<>();
 
     public Todos(List<Todo> todos) {

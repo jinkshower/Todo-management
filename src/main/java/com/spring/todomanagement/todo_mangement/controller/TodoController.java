@@ -8,6 +8,7 @@ import com.spring.todomanagement.todo_mangement.dto.TodoSaveRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoUpdateRequestDto;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class TodoController {
 
     @PostMapping("/todos")
     public ResponseEntity<CommonResponse<TodoResponseDto>> saveTodo(@Login UserDto userDto,
-                                                                    @RequestBody TodoSaveRequestDto requestDto) {
+                                                                    @RequestBody @Valid TodoSaveRequestDto requestDto) {
         TodoResponseDto responseDto = todoService.saveTodo(userDto, requestDto);
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(CommonResponse.<TodoResponseDto>builder()
                         .statusCode(HttpStatus.CREATED.value())
@@ -69,7 +70,7 @@ public class TodoController {
     public ResponseEntity<CommonResponse<TodoResponseDto>> updateTodo(
             @PathVariable Long todoId,
             @Login UserDto userDto,
-            @RequestBody TodoUpdateRequestDto requestDto) {
+            @RequestBody @Valid TodoUpdateRequestDto requestDto) {
         TodoResponseDto todoResponseDto = todoService.updateTodo(todoId, userDto, requestDto);
         return ResponseEntity.ok().body(CommonResponse.<TodoResponseDto>builder()
                         .statusCode(HttpStatus.OK.value())
