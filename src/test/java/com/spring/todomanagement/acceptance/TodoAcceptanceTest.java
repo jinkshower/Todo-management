@@ -96,10 +96,11 @@ class TodoAcceptanceTest {
     @Test
     void test4() {
         //given
-        postTodo(postInfo(), validToken1);
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
 
         //when
-        ExtractableResponse<Response> response = getTodo(1L);
+        ExtractableResponse<Response> response = getTodo(todoId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -142,10 +143,11 @@ class TodoAcceptanceTest {
     @Test
     void test7() {
         //given
-        postTodo(postInfo(), validToken1);
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
 
         //when
-        ExtractableResponse<Response> response = patchTodoStatus(1L, validToken1);
+        ExtractableResponse<Response> response = patchTodoStatus(todoId, validToken1);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -156,10 +158,11 @@ class TodoAcceptanceTest {
     @Test
     void test8() {
         //given
-        postTodo(postInfo(), validToken1);
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
 
         //when
-        ExtractableResponse<Response> response = patchTodoStatus(1L, validToken2);
+        ExtractableResponse<Response> response = patchTodoStatus(todoId, validToken2);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -170,8 +173,8 @@ class TodoAcceptanceTest {
     @Test
     void test9() {
         //given
-        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
 
         //when
         ExtractableResponse<Response> response = deleteTodo(todoId, validToken1);
@@ -185,14 +188,65 @@ class TodoAcceptanceTest {
     @Test
     void test10() {
         //given
-        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
 
         //when
         ExtractableResponse<Response> response = deleteTodo(todoId, validToken2);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @DisplayName("사용자는 완료되지 않은 할일만 조회할 수 있다.")
+    @Test
+    void test11() {
+        //given
+        postTodo(postInfo(), validToken1);
+        ExtractableResponse<Response> postResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(postResponse);
+
+        patchTodoStatus(todoId, validToken1);
+
+        //when
+        ExtractableResponse<Response> response = getActiveTodo(validToken1);
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        List<String> list = response.jsonPath().getList("data");
+        assertThat(list.size()).isEqualTo(1);
+    }
+
+    @DisplayName("사용자는 자신이 작성한 글만 조회할 수 있다.")
+    @Test
+    void test12() {
+        //given
+        postTodo(postInfo(), validToken1);
+        postTodo(postInfo(), validToken2);
+
+        //when
+        ExtractableResponse<Response> response = getMyTodo(userId, validToken1);
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        List<String> list = response.jsonPath().getList("data");
+        assertThat(list.size()).isEqualTo(1);
+    }
+    @DisplayName("사용자는 제목으로 할일을 검색할 수 있다")
+    @Test
+    void test13() {
+        //given
+        postTodo(postInfo(), validToken1);
+        postTodo(postInfo2(), validToken1);
+        String title = "anotherTitle";
+
+        //when
+        ExtractableResponse<Response> response = searchTodo(title, validToken1);
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        List<String> list = response.jsonPath().getList("data");
+        assertThat(list.size()).isEqualTo(1);
     }
 
     @AfterEach
@@ -255,6 +309,30 @@ class TodoAcceptanceTest {
                 .extract();
     }
 
+    private ExtractableResponse<Response> getActiveTodo(String accessToken) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().get("/api/todos/filter?completed=true")
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> getMyTodo(Long userId, String accessToken) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().get("/api/todos/filter?userId={userId}", userId)
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> searchTodo(String title, String accessToken) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().get("/api/todos/filter?title={title}", title)
+                .then().log().all()
+                .extract();
+    }
+
     private TokenResponse getValidUserInfo(String name, String password) {
         signup(name, password);
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
@@ -294,9 +372,21 @@ class TodoAcceptanceTest {
         return map;
     }
 
+    private Map<String, Object> postInfo2() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", "hiyen");
+        map.put("title", "anotherTitle");
+        map.put("content", "anotherContent");
+        return map;
+    }
+
     private Long extractIdFromToken(String token) {
         String substring = token.substring(7);
         return jwtUtil.getUserIdFromToken(substring);
+    }
+
+    private Long extractIdFromResponse(ExtractableResponse<Response> response) {
+        return response.jsonPath().getLong("data.id");
     }
 
     class TokenResponse {

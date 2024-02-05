@@ -52,6 +52,19 @@ public class TodoController {
                         .data(todoResponseDto).build());
     }
 
+    @GetMapping("/todos/filter")
+    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> getFilteredTodos(
+            @RequestParam(defaultValue = "false") Boolean completed,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String title,
+            @Login UserDto userDto) {
+        List<TodoResponseDto> todoResponseDtos = todoService.getFilteredTodos(completed, userId, title, userDto);
+        return ResponseEntity.ok().body(CommonResponse.<List<TodoResponseDto>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("검색 결과가 조회되었습니다.")
+                        .data(todoResponseDtos).build());
+    }
+
     @PatchMapping("/todos/{todoId}")
     public ResponseEntity<CommonResponse<TodoResponseDto>> updateTodo(
             @PathVariable Long todoId,

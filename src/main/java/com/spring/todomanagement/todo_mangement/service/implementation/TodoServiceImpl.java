@@ -1,8 +1,7 @@
 package com.spring.todomanagement.todo_mangement.service.implementation;
 
 import com.spring.todomanagement.auth.dto.UserDto;
-import com.spring.todomanagement.todo_mangement.domain.Todo;
-import com.spring.todomanagement.todo_mangement.domain.User;
+import com.spring.todomanagement.todo_mangement.domain.*;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoSaveRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoUpdateRequestDto;
@@ -73,14 +72,25 @@ public class TodoServiceImpl implements TodoService{
     public Long deleteTodo(Long todoId, UserDto userDto) {
         User user = userDto.getUser();
         Todo todo = findTodo(todoId);
-        if (!Objects.equals(todo.getUser().getId(), user.getId())) {
-            String errorMessage = "할일 삭제 실패 - 작성자 id 불일치. 할일 작성자 ID: " + todo.getUser().getId()
-                    + ", 요청 사용자 ID: " + user.getId();
-            log.error(errorMessage);
-            throw new InvalidUserException(errorMessage);
-        }
+
+        validateUserId(todo.getUser().getId(), user.getId());
+
         todoRepository.delete(todo);
         return todo.getId();
+    }
+
+    @Override
+    public List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title, UserDto userDto) {
+        if (userId != null) {
+            validateUserId(userDto.getUser().getId(), userId);
+        }
+
+        Todos todos = new Todos(todoRepository.findAll());
+
+        List<Todo> filtered = todos.filter(completed, userId, title);
+        return filtered.stream()
+                .map(TodoResponseDto::new)
+                .toList();
     }
 
     private Todo findTodo(Long todoId) {
@@ -91,5 +101,13 @@ public class TodoServiceImpl implements TodoService{
                     return new InvalidTodoException(errorMessage);
                 }
         );
+    }
+
+    private void validateUserId(Long origin, Long input) {
+        if(!Objects.equals(origin, input)) {
+            String errorMessage = String.format("유저 id 불일치. 유저 ID: %s, 요청 사용자 ID: %s", origin, input);
+            log.error(errorMessage);
+            throw new InvalidUserException(errorMessage);
+        }
     }
 }

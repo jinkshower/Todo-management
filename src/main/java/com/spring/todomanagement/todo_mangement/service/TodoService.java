@@ -20,4 +20,6 @@ public interface TodoService {
     Long changeTodoStatus(Long todoId, UserDto userDto);
 
     Long deleteTodo(Long todoId, UserDto userDto);
+
+    List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title, UserDto userDto);
 }
