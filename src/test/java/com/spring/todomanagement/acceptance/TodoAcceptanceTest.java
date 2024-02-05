@@ -57,7 +57,7 @@ class TodoAcceptanceTest {
         String token = "1234";
 
         //when
-        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), token);
+        ExtractableResponse<Response> response = postTodo(postInfo(), token);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -67,10 +67,10 @@ class TodoAcceptanceTest {
     @Test
     void test2() {
         //given //when
-        ExtractableResponse<Response> response = requestTodoPost(bodyMap(), validToken1);
+        ExtractableResponse<Response> response = postTodo(postInfo(), validToken1);
 
         //then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         List<Todo> foundTodos = todoRepository.findAllByUserId(userId);
         assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
     }
@@ -80,14 +80,11 @@ class TodoAcceptanceTest {
     @Test
     void test3() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
-        requestTodoPost(bodyMap(), validToken1);
+        postTodo(postInfo(), validToken1);
+        postTodo(postInfo(), validToken1);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .when().get("/api/todos")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = getAllTodo();
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -99,13 +96,10 @@ class TodoAcceptanceTest {
     @Test
     void test4() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
+        postTodo(postInfo(), validToken1);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .when().get("/api/todos/1")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = getTodo(1L);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -116,20 +110,12 @@ class TodoAcceptanceTest {
     @Test
     void test5() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
-        TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
-                .title("updateTitle")
-                .content("updateContent")
-                .build();
+        postTodo(postInfo(), validToken1);
+        String title = "updateTitle";
+        String content = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken1)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/1")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = updateTodo(validToken1, title, content);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -140,20 +126,12 @@ class TodoAcceptanceTest {
     @Test
     void test6() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
-        TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
-                .title("updateTitle")
-                .content("updateContent")
-                .build();
+        postTodo(postInfo(), validToken1);
+        String title = "updateTitle";
+        String content = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken2)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/1")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = updateTodo(validToken2, title, content);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -164,14 +142,10 @@ class TodoAcceptanceTest {
     @Test
     void test7() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
+        postTodo(postInfo(), validToken1);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken1)
-                .when().patch("/api/todos/1/status")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = patchTodoStatus(1L, validToken1);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -182,14 +156,10 @@ class TodoAcceptanceTest {
     @Test
     void test8() {
         //given
-        requestTodoPost(bodyMap(), validToken1);
+        postTodo(postInfo(), validToken1);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken2)
-                .when().patch("/api/todos/1/status")
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = patchTodoStatus(1L, validToken2);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -200,15 +170,11 @@ class TodoAcceptanceTest {
     @Test
     void test9() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
         Long todoId = todoResponse.jsonPath().getLong("data.id");
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken1)
-                .when().delete("/api/todos/" + todoId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = deleteTodo(todoId, validToken1);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -219,15 +185,11 @@ class TodoAcceptanceTest {
     @Test
     void test10() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
         Long todoId = todoResponse.jsonPath().getLong("data.id");
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken2)
-                .when().delete("/api/todos/" + todoId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = deleteTodo(todoId, validToken2);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -238,12 +200,57 @@ class TodoAcceptanceTest {
         todoRepository.deleteAll();
     }
 
-    private ExtractableResponse<Response> requestTodoPost(Map<String, Object> bodyMap, String accessToken) {
+    private ExtractableResponse<Response> getAllTodo() {
+        return RestAssured.given().log().all()
+                .when().get("/api/todos")
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> getTodo(Long todoId) {
+        return RestAssured.given().log().all()
+                .when().get("/api/todos/{todoId}", todoId)
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> postTodo(Map<String, Object> bodyMap, String accessToken) {
         return RestAssured.given().log().all()
                 .header("Authorization", accessToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(bodyMap)
                 .when().post("/api/todos")
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> updateTodo(String accessToken, String updateTitle, String updateContent) {
+        TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
+                .title(updateTitle)
+                .content(updateContent)
+                .build();
+
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/1")
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> patchTodoStatus(Long todoId, String accessToken) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().patch("/api/todos/{todoId}/status", todoId)
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> deleteTodo(Long todoId, String accessToken) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().delete("/api/todos/{todoId}", todoId)
                 .then().log().all()
                 .extract();
     }
@@ -270,7 +277,7 @@ class TodoAcceptanceTest {
                 .name(name)
                 .password(password)
                 .build();
-        ExtractableResponse<Response> signupResponse = RestAssured.given().log().all()
+        RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
@@ -279,7 +286,7 @@ class TodoAcceptanceTest {
                 .extract();
     }
 
-    private Map<String, Object> bodyMap() {
+    private Map<String, Object> postInfo() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", "hiyen");
         map.put("title", "myTitle");

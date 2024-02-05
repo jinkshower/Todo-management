@@ -54,15 +54,15 @@ class CommentAcceptanceTest {
     @Test
     void test1() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long postId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
 
         //when
-        ExtractableResponse<Response> response = requestPostComment(postId, validToken1);
+        ExtractableResponse<Response> response = postComment(todoId, validToken1);
 
         //then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        List<Comment> foundTodos = commentRepository.findAllByTodoId(postId);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        List<Comment> foundTodos = commentRepository.findAllByTodoId(todoId);
         assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
     }
 
@@ -70,11 +70,11 @@ class CommentAcceptanceTest {
     @Test
     void test2() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long postId = todoResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
 
         //when
-        ExtractableResponse<Response> response = requestPostComment(postId, "1234");
+        ExtractableResponse<Response> response = postComment(todoId, "1234");
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -84,22 +84,15 @@ class CommentAcceptanceTest {
     @Test
     void test3() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
-        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
-        Long commentId = commentResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
+        ExtractableResponse<Response> commentResponse = postComment(todoId, validToken1);
+        Long commentId = extractIdFromResponse(commentResponse);
 
-        CommentRequestDto requestDto = CommentRequestDto.builder()
-                .content("updateContent").build();
+        String updateContent = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken1)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/" + todoId + "/comments/" + commentId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = updateComment(updateContent, validToken1, todoId, commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -110,22 +103,15 @@ class CommentAcceptanceTest {
     @Test
     void test4() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
-        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
-        Long commentId = commentResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
+        ExtractableResponse<Response> commentResponse = postComment(todoId, validToken1);
+        Long commentId = extractIdFromResponse(commentResponse);
 
-        CommentRequestDto requestDto = CommentRequestDto.builder()
-                .content("updateContent").build();
+        String updateContent = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken2)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/" + todoId + "/comments/" + commentId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = updateComment(updateContent, validToken2, todoId, commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -136,17 +122,13 @@ class CommentAcceptanceTest {
     @Test
     void test5() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
-        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
-        Long commentId = commentResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
+        ExtractableResponse<Response> commentResponse = postComment(todoId, validToken1);
+        Long commentId = extractIdFromResponse(commentResponse);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken1)
-                .when().delete("/api/todos/" + todoId + "/comments/" + commentId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = deleteComment(validToken1, todoId, commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -157,29 +139,49 @@ class CommentAcceptanceTest {
     @Test
     void test6() {
         //given
-        ExtractableResponse<Response> todoResponse = requestTodoPost(bodyMap(), validToken1);
-        Long todoId = todoResponse.jsonPath().getLong("data.id");
-        ExtractableResponse<Response> commentResponse = requestPostComment(todoId, validToken1);
-        Long commentId = commentResponse.jsonPath().getLong("data.id");
+        ExtractableResponse<Response> todoResponse = postTodo(postInfo(), validToken1);
+        Long todoId = extractIdFromResponse(todoResponse);
+        ExtractableResponse<Response> commentResponse = postComment(todoId, validToken1);
+        Long commentId = extractIdFromResponse(commentResponse);
 
         //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header("Authorization", validToken2)
-                .when().delete("/api/todos/" + todoId + "/comments/" + commentId)
-                .then().log().all()
-                .extract();
+        ExtractableResponse<Response> response = deleteComment(validToken2, todoId, commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         assertThat(response.body().asString()).contains("댓글 삭제 실패");
     }
 
-    private ExtractableResponse<Response> requestPostComment(Long todoId, String accessToken) {
+    private ExtractableResponse<Response> postComment(Long todoId, String accessToken) {
         return RestAssured.given().log().all()
                 .header("Authorization", accessToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(commentMap())
-                .when().post("/api/todos/" + todoId + "/comments")
+                .when().post("/api/todos/{todoId}/comments", todoId)
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> updateComment(String content,
+                                                        String accessToken,
+                                                        Long todoId,
+                                                        Long commentId) {
+        CommentRequestDto requestDto = CommentRequestDto.builder()
+                .content(content).build();
+
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestDto)
+                .when().patch("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> deleteComment(String accessToken, Long todoId, Long commentId) {
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when().delete("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
                 .then().log().all()
                 .extract();
     }
@@ -190,11 +192,11 @@ class CommentAcceptanceTest {
         return map;
     }
 
-    private ExtractableResponse<Response> requestTodoPost(Map<String, Object> bodyMap, String accessToken) {
+    private ExtractableResponse<Response> postTodo(Map<String, Object> postInfo, String accessToken) {
         return RestAssured.given().log().all()
                 .header("Authorization", accessToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(bodyMap)
+                .body(postInfo)
                 .when().post("/api/todos")
                 .then().log().all()
                 .extract();
@@ -222,7 +224,7 @@ class CommentAcceptanceTest {
                 .name(name)
                 .password(password)
                 .build();
-        ExtractableResponse<Response> signupResponse = RestAssured.given().log().all()
+        RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
@@ -231,7 +233,7 @@ class CommentAcceptanceTest {
                 .extract();
     }
 
-    private Map<String, Object> bodyMap() {
+    private Map<String, Object> postInfo() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", "hiyen");
         map.put("title", "myTitle");
@@ -242,6 +244,10 @@ class CommentAcceptanceTest {
     private Long extractIdFromToken(String token) {
         String substring = token.substring(7);
         return jwtUtil.getUserIdFromToken(substring);
+    }
+
+    private Long extractIdFromResponse(ExtractableResponse<Response> response) {
+        return response.jsonPath().getLong("data.id");
     }
 
     class TokenResponse {
