@@ -34,6 +34,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Set up H2 database
+        run: ./gradlew flywayMigrate -Pflyway.url=jdbc:h2:tcp://localhost:1521/mem:testdb -Pflyway.user=sa -Pflyway.password=password
+
       - name: Test with Gradle
         run: ./gradlew --info test
 
