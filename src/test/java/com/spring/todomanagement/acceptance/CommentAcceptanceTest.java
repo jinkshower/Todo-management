@@ -1,5 +1,7 @@
 package com.spring.todomanagement.acceptance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.spring.todomanagement.auth.dto.LoginRequestDto;
 import com.spring.todomanagement.auth.dto.SignupRequestDto;
 import com.spring.todomanagement.auth.support.JwtUtil;
@@ -9,6 +11,9 @@ import com.spring.todomanagement.todo_mangement.repository.CommentRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,14 +22,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class CommentAcceptanceTest {
 
     @LocalServerPort
@@ -92,7 +93,8 @@ class CommentAcceptanceTest {
         String updateContent = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = updateComment(updateContent, validToken1, todoId, commentId);
+        ExtractableResponse<Response> response = updateComment(updateContent, validToken1, todoId,
+            commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -111,7 +113,8 @@ class CommentAcceptanceTest {
         String updateContent = "updateContent";
 
         //when
-        ExtractableResponse<Response> response = updateComment(updateContent, validToken2, todoId, commentId);
+        ExtractableResponse<Response> response = updateComment(updateContent, validToken2, todoId,
+            commentId);
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -154,36 +157,37 @@ class CommentAcceptanceTest {
 
     private ExtractableResponse<Response> postComment(Long todoId, String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(commentMap())
-                .when().post("/api/todos/{todoId}/comments", todoId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(commentMap())
+            .when().post("/api/todos/{todoId}/comments", todoId)
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> updateComment(String content,
-                                                        String accessToken,
-                                                        Long todoId,
-                                                        Long commentId) {
+        String accessToken,
+        Long todoId,
+        Long commentId) {
         CommentRequestDto requestDto = CommentRequestDto.builder()
-                .content(content).build();
+            .content(content).build();
 
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(requestDto)
+            .when().patch("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
+            .then().log().all()
+            .extract();
     }
 
-    private ExtractableResponse<Response> deleteComment(String accessToken, Long todoId, Long commentId) {
+    private ExtractableResponse<Response> deleteComment(String accessToken, Long todoId,
+        Long commentId) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().delete("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().delete("/api/todos/{todoId}/comments/{commentId}", todoId, commentId)
+            .then().log().all()
+            .extract();
     }
 
     private Map<String, Object> commentMap() {
@@ -192,28 +196,29 @@ class CommentAcceptanceTest {
         return map;
     }
 
-    private ExtractableResponse<Response> postTodo(Map<String, Object> postInfo, String accessToken) {
+    private ExtractableResponse<Response> postTodo(Map<String, Object> postInfo,
+        String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(postInfo)
-                .when().post("/api/todos")
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(postInfo)
+            .when().post("/api/todos")
+            .then().log().all()
+            .extract();
     }
 
     private TokenResponse getValidUserInfo(String name, String password) {
         signup(name, password);
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
         ExtractableResponse<Response> loginResponse = RestAssured.given().log().all()
-                .body(loginRequestDto)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().post("/api/auth/login")
-                .then().log().all()
-                .extract();
+            .body(loginRequestDto)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/api/auth/login")
+            .then().log().all()
+            .extract();
         String token = loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
         Long userId = extractIdFromToken(token);
         return new TokenResponse(userId, token);
@@ -221,16 +226,16 @@ class CommentAcceptanceTest {
 
     private void signup(String name, String password) {
         SignupRequestDto requestDto = SignupRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
         RestAssured.given().log().all()
-                .body(requestDto)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .post("/api/auth/signup")
-                .then().log().all()
-                .extract();
+            .body(requestDto)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .post("/api/auth/signup")
+            .then().log().all()
+            .extract();
     }
 
     private Map<String, Object> postInfo() {

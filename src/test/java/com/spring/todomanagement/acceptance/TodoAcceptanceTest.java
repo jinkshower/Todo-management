@@ -1,5 +1,7 @@
 package com.spring.todomanagement.acceptance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.spring.todomanagement.auth.dto.LoginRequestDto;
 import com.spring.todomanagement.auth.dto.SignupRequestDto;
 import com.spring.todomanagement.auth.support.JwtUtil;
@@ -9,22 +11,25 @@ import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class TodoAcceptanceTest {
 
     @LocalServerPort
@@ -120,7 +125,8 @@ class TodoAcceptanceTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.body().asString()).contains("hiyen", "1", "updateTitle", "updateContent");
+        assertThat(response.body().asString()).contains("hiyen", "1", "updateTitle",
+            "updateContent");
     }
 
     @DisplayName("토큰을 가졌지만 할일의 userId와 동일하지 않은 id를 가진 유저는 할 일을 수정 할 수 없다")
@@ -232,6 +238,7 @@ class TodoAcceptanceTest {
         List<String> list = response.jsonPath().getList("data");
         assertThat(list.size()).isEqualTo(1);
     }
+
     @DisplayName("사용자는 제목으로 할일을 검색할 수 있다")
     @Test
     void test13() {
@@ -256,95 +263,97 @@ class TodoAcceptanceTest {
 
     private ExtractableResponse<Response> getAllTodo() {
         return RestAssured.given().log().all()
-                .when().get("/api/todos")
-                .then().log().all()
-                .extract();
+            .when().get("/api/todos")
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> getTodo(Long todoId) {
         return RestAssured.given().log().all()
-                .when().get("/api/todos/{todoId}", todoId)
-                .then().log().all()
-                .extract();
+            .when().get("/api/todos/{todoId}", todoId)
+            .then().log().all()
+            .extract();
     }
 
-    private ExtractableResponse<Response> postTodo(Map<String, Object> bodyMap, String accessToken) {
+    private ExtractableResponse<Response> postTodo(Map<String, Object> bodyMap,
+        String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(bodyMap)
-                .when().post("/api/todos")
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(bodyMap)
+            .when().post("/api/todos")
+            .then().log().all()
+            .extract();
     }
 
-    private ExtractableResponse<Response> updateTodo(String accessToken, String updateTitle, String updateContent) {
+    private ExtractableResponse<Response> updateTodo(String accessToken, String updateTitle,
+        String updateContent) {
         TodoUpdateRequestDto requestDto = TodoUpdateRequestDto.builder()
-                .title(updateTitle)
-                .content(updateContent)
-                .build();
+            .title(updateTitle)
+            .content(updateContent)
+            .build();
 
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(requestDto)
-                .when().patch("/api/todos/1")
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(requestDto)
+            .when().patch("/api/todos/1")
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> patchTodoStatus(Long todoId, String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().patch("/api/todos/{todoId}/status", todoId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().patch("/api/todos/{todoId}/status", todoId)
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> deleteTodo(Long todoId, String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().delete("/api/todos/{todoId}", todoId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().delete("/api/todos/{todoId}", todoId)
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> getActiveTodo(String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().get("/api/todos/filter?completed=true")
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().get("/api/todos/filter?completed=true")
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> getMyTodo(Long userId, String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().get("/api/todos/filter?userId={userId}", userId)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().get("/api/todos/filter?userId={userId}", userId)
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> searchTodo(String title, String accessToken) {
         return RestAssured.given().log().all()
-                .header("Authorization", accessToken)
-                .when().get("/api/todos/filter?title={title}", title)
-                .then().log().all()
-                .extract();
+            .header("Authorization", accessToken)
+            .when().get("/api/todos/filter?title={title}", title)
+            .then().log().all()
+            .extract();
     }
 
     private TokenResponse getValidUserInfo(String name, String password) {
         signup(name, password);
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
         ExtractableResponse<Response> loginResponse = RestAssured.given().log().all()
-                .body(loginRequestDto)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().post("/api/auth/login")
-                .then().log().all()
-                .extract();
+            .body(loginRequestDto)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/api/auth/login")
+            .then().log().all()
+            .extract();
         String token = loginResponse.header(JwtUtil.AUTHORIZATION_HEADER);
         Long userId = extractIdFromToken(token);
         return new TokenResponse(userId, token);
@@ -352,16 +361,16 @@ class TodoAcceptanceTest {
 
     private void signup(String name, String password) {
         SignupRequestDto requestDto = SignupRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
         RestAssured.given().log().all()
-                .body(requestDto)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .post("/api/auth/signup")
-                .then().log().all()
-                .extract();
+            .body(requestDto)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .post("/api/auth/signup")
+            .then().log().all()
+            .extract();
     }
 
     private Map<String, Object> postInfo() {

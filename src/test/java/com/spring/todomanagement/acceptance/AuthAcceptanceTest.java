@@ -1,11 +1,14 @@
 package com.spring.todomanagement.acceptance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.spring.todomanagement.auth.dto.LoginRequestDto;
 import com.spring.todomanagement.auth.dto.SignupRequestDto;
 import com.spring.todomanagement.auth.support.JwtUtil;
 import com.spring.todomanagement.common.CommonResponse;
 import com.spring.todomanagement.todo_mangement.domain.User;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,12 +20,10 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class AuthAcceptanceTest {
 
     @LocalServerPort
@@ -45,15 +46,15 @@ class AuthAcceptanceTest {
         String password = "12345678";
 
         SignupRequestDto requestDto = SignupRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
 
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
-                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+            restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -70,20 +71,20 @@ class AuthAcceptanceTest {
         String password = "12345678";
 
         userRepository.save(User.builder()
-                .name(name)
-                .password(passwordEncoder.encode(password))
-                .build());
+            .name(name)
+            .password(passwordEncoder.encode(password))
+            .build());
 
         LoginRequestDto requestDto = LoginRequestDto.builder()
-                .name(name)
-                .password(password)
-                .build();
+            .name(name)
+            .password(password)
+            .build();
 
         String url = "http://localhost:" + port + "/api/auth/login";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
-                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+            restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -97,15 +98,15 @@ class AuthAcceptanceTest {
         String password = "12345678";
 
         SignupRequestDto requestDto = SignupRequestDto.builder()
-                .name(input)
-                .password(password)
-                .build();
+            .name(input)
+            .password(password)
+            .build();
 
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
-                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+            restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -118,15 +119,15 @@ class AuthAcceptanceTest {
         String name = "jack";
 
         SignupRequestDto requestDto = SignupRequestDto.builder()
-                .name(name)
-                .password(input)
-                .build();
+            .name(name)
+            .password(input)
+            .build();
 
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
         ResponseEntity<CommonResponse> responseEntity =
-                restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+            restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
