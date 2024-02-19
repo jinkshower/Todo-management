@@ -7,11 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      h2:
-        image: oscarfonts/h2:latest
-        ports:
-          - 1521:1521
     steps:
       - uses: actions/checkout@v2
 
@@ -34,8 +29,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Set up H2 database
-        run: ./gradlew flywayMigrate -Pflyway.url=jdbc:h2:tcp://localhost:1521/mem:testdb -Pflyway.user=sa -Pflyway.password=password
+      - name: Set up MySQL
+        run: |
+          /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE test;' -u root -p password
 
       - name: Test with Gradle
         run: ./gradlew --info test
