@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.spring.todomanagement.common.TodoFixture;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
+import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
@@ -87,7 +88,6 @@ public class TodoServiceTest implements TodoFixture {
     void test4() {
         //given
         Todo testTodo = TEST_TODO;
-        System.out.println("testTodo.getTitle() = " + testTodo.getTitle());
         given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
 
         //when
@@ -97,7 +97,7 @@ public class TodoServiceTest implements TodoFixture {
             .build();
         TodoResponseDto actual = todoService.updateTodo(TEST_TODO_ID, TEST_USER_DTO,
             request);
-        System.out.println("testTodo.getTitle() = " + testTodo.getTitle());
+
         //then
         assertThat(actual).isEqualTo(new TodoResponseDto(testTodo));
     }
@@ -114,5 +114,19 @@ public class TodoServiceTest implements TodoFixture {
         //then
         verify(todoRepository, times(1))
             .delete(ArgumentMatchers.any(Todo.class));
+    }
+
+    @DisplayName("할일 완료 처리")
+    @Test
+    void test6() {
+        //given
+        Todo testTodo = TEST_TODO;
+        given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
+
+        //when
+        todoService.changeTodoStatus(TEST_TODO_ID, TEST_USER_DTO);
+
+        //then
+        assertThat(testTodo.getTodoStatus()).isEqualTo(TodoStatus.DONE);
     }
 }
