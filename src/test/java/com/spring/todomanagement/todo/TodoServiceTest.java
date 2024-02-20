@@ -1,6 +1,7 @@
 package com.spring.todomanagement.todo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 
@@ -9,6 +10,7 @@ import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +37,21 @@ public class TodoServiceTest implements TodoFixture {
         //when
         TodoResponseDto actual =
             todoService.saveTodo(TEST_USER_DTO, TEST_TODO_REQUEST_DTO);
+
+        //then
+        TodoResponseDto expected = new TodoResponseDto(testTodo);
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @DisplayName("할일 조회")
+    @Test
+    void test2() {
+        //given
+        Todo testTodo = TEST_TODO;
+        given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
+
+        //when
+        TodoResponseDto actual = todoService.getTodo(TEST_TODO_ID);
 
         //then
         TodoResponseDto expected = new TodoResponseDto(testTodo);
