@@ -15,10 +15,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,10 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @Table(name = "todos")
 @Entity
-public class Todo extends Timestamped {
+public class Todo extends Timestamped implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
