@@ -10,7 +10,9 @@ import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +57,24 @@ public class TodoServiceTest implements TodoFixture {
 
         //then
         TodoResponseDto expected = new TodoResponseDto(testTodo);
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @DisplayName("할일 전체 조회")
+    @Test
+    void test3() {
+        //given
+        Todo testTodo = TEST_TODO;
+        Todo testTodo2 = TEST_ANOTHER_TODO;
+        given(todoRepository.findAllByOrderByCreatedAtDesc())
+            .willReturn(List.of(testTodo, testTodo2));
+
+        //when
+        List<TodoResponseDto> actual = todoService.getAllTodos();
+
+        //then
+        List<TodoResponseDto> expected = Stream.of(testTodo, testTodo2)
+            .map(TodoResponseDto::new).toList();
         assertThat(actual).isEqualTo(expected);
     }
 }
