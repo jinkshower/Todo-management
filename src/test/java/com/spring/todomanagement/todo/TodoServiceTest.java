@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.spring.todomanagement.common.TodoFixture;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
+import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
@@ -76,5 +77,25 @@ public class TodoServiceTest implements TodoFixture {
         List<TodoResponseDto> expected = Stream.of(testTodo, testTodo2)
             .map(TodoResponseDto::new).toList();
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @DisplayName("할일 수정")
+    @Test
+    void test4() {
+        //given
+        Todo testTodo = TEST_TODO;
+        System.out.println("testTodo.getTitle() = " + testTodo.getTitle());
+        given(todoRepository.findById(eq(TEST_USER_ID))).willReturn(Optional.of(testTodo));
+
+        //when
+        TodoRequestDto request = TodoRequestDto.builder()
+            .title("updateTitle")
+            .content("updateContent")
+            .build();
+        TodoResponseDto actual = todoService.updateTodo(TEST_TODO_ID, TEST_USER_DTO,
+            request);
+
+        //then
+        assertThat(actual).isEqualTo(new TodoResponseDto(testTodo));
     }
 }
