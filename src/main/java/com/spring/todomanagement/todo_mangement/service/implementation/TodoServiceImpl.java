@@ -1,32 +1,32 @@
 package com.spring.todomanagement.todo_mangement.service.implementation;
 
 import com.spring.todomanagement.auth.dto.UserDto;
-import com.spring.todomanagement.todo_mangement.domain.*;
+import com.spring.todomanagement.todo_mangement.domain.Todo;
+import com.spring.todomanagement.todo_mangement.domain.Todos;
+import com.spring.todomanagement.todo_mangement.domain.User;
+import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
-import com.spring.todomanagement.todo_mangement.dto.TodoSaveRequestDto;
-import com.spring.todomanagement.todo_mangement.dto.TodoUpdateRequestDto;
 import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
 import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TodoServiceImpl implements TodoService{
+public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
 
     @Transactional
     @Override
-    public TodoResponseDto saveTodo(UserDto userDto, TodoSaveRequestDto requestDto) {
+    public TodoResponseDto saveTodo(UserDto userDto, TodoRequestDto requestDto) {
         Todo entity = requestDto.toEntity(userDto.getUser());
         todoRepository.save(entity);
         return new TodoResponseDto(entity);
@@ -36,8 +36,8 @@ public class TodoServiceImpl implements TodoService{
     @Override
     public List<TodoResponseDto> getAllTodos() {
         return todoRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(TodoResponseDto::new)
-                .toList();
+            .map(TodoResponseDto::new)
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +49,7 @@ public class TodoServiceImpl implements TodoService{
 
     @Transactional
     @Override
-    public TodoResponseDto updateTodo(Long todoId, UserDto userDto, TodoUpdateRequestDto requestDto) {
+    public TodoResponseDto updateTodo(Long todoId, UserDto userDto, TodoRequestDto requestDto) {
         User user = userDto.getUser();
         Todo todo = findTodo(todoId);
 
@@ -80,7 +80,8 @@ public class TodoServiceImpl implements TodoService{
     }
 
     @Override
-    public List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title, UserDto userDto) {
+    public List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title,
+        UserDto userDto) {
         if (userId != null) {
             validateUserId(userDto.getUser().getId(), userId);
         }
@@ -89,23 +90,24 @@ public class TodoServiceImpl implements TodoService{
 
         List<Todo> filtered = todos.filter(completed, userId, title);
         return filtered.stream()
-                .map(TodoResponseDto::new)
-                .toList();
+            .map(TodoResponseDto::new)
+            .toList();
     }
 
     private Todo findTodo(Long todoId) {
         return todoRepository.findById(todoId).orElseThrow(
-                () -> {
-                    String errorMessage = "없는 할일입니다. 요청 ID: " + todoId;
-                    log.error(errorMessage);
-                    return new InvalidTodoException(errorMessage);
-                }
+            () -> {
+                String errorMessage = "없는 할일입니다. 요청 ID: " + todoId;
+                log.error(errorMessage);
+                return new InvalidTodoException(errorMessage);
+            }
         );
     }
 
     private void validateUserId(Long origin, Long input) {
-        if(!Objects.equals(origin, input)) {
-            String errorMessage = String.format("유저 id 불일치. 유저 ID: %s, 요청 사용자 ID: %s", origin, input);
+        if (!Objects.equals(origin, input)) {
+            String errorMessage = String.format("유저 id 불일치. 유저 ID: %s, 요청 사용자 ID: %s", origin,
+                input);
             log.error(errorMessage);
             throw new InvalidUserException(errorMessage);
         }

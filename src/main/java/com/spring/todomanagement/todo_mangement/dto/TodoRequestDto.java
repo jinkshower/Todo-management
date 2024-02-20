@@ -9,7 +9,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class TodoSaveRequestDto {
+public class TodoRequestDto {
+
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
     @NotNull
@@ -17,9 +18,9 @@ public class TodoSaveRequestDto {
 
     public Todo toEntity(User user) {
         return Todo.builder()
-                .title(title)
-                .content(content)
-                .user(user)
-                .build();
+            .title(title)
+            .content(content)
+            .user(user)
+            .build();
     }
 }

@@ -3,17 +3,18 @@ package com.spring.todomanagement.todo_mangement.dto;
 import com.spring.todomanagement.todo_mangement.domain.Comment;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class TodoResponseDto {
+
     private Long id;
     private String title;
     private String content;
