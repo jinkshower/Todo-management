@@ -1,5 +1,6 @@
 package com.spring.todomanagement.common;
 
+import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.todo_mangement.domain.User;
 
 public interface UserFixture {
@@ -13,6 +14,10 @@ public interface UserFixture {
     User TEST_USER = User.builder()
         .name(TEST_USER_NAME)
         .password(TEST_USER_PASSWORD)
+        .build();
+
+    UserDto TEST_USER_DTO = UserDto.builder()
+        .user(TEST_USER)
         .build();
 
     User TEST_ANOTHER_USER = User.builder()

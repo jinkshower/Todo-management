@@ -6,11 +6,13 @@ import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class TodoResponseDto {
 
     private Long id;

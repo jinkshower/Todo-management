@@ -17,6 +17,7 @@ public interface TodoFixture extends UserFixture {
     Todo TEST_TODO = Todo.builder()
         .title(TEST_TODO_TITLE)
         .content(TEST_TODO_CONTENT)
+        .user(TEST_USER)
         .build();
     TodoResponseDto TEST_TODO_RESPONSE_DTO = new TodoResponseDto(TEST_TODO);
     Todo TEST_ANOTHER_TODO = Todo.builder()
