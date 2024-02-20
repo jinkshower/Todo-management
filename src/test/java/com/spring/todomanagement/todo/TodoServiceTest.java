@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.spring.todomanagement.common.TodoFixture;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
@@ -17,6 +19,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -85,7 +88,7 @@ public class TodoServiceTest implements TodoFixture {
         //given
         Todo testTodo = TEST_TODO;
         System.out.println("testTodo.getTitle() = " + testTodo.getTitle());
-        given(todoRepository.findById(eq(TEST_USER_ID))).willReturn(Optional.of(testTodo));
+        given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
 
         //when
         TodoRequestDto request = TodoRequestDto.builder()
@@ -94,8 +97,22 @@ public class TodoServiceTest implements TodoFixture {
             .build();
         TodoResponseDto actual = todoService.updateTodo(TEST_TODO_ID, TEST_USER_DTO,
             request);
-
+        System.out.println("testTodo.getTitle() = " + testTodo.getTitle());
         //then
         assertThat(actual).isEqualTo(new TodoResponseDto(testTodo));
+    }
+
+    @DisplayName("할일 삭제")
+    @Test
+    void test5() {
+        //given
+        given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_TODO));
+
+        //when
+        todoService.deleteTodo(TEST_TODO_ID, TEST_USER_DTO);
+
+        //then
+        verify(todoRepository, times(1))
+            .delete(ArgumentMatchers.any(Todo.class));
     }
 }
