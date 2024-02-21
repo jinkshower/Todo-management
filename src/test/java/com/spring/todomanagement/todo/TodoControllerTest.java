@@ -49,6 +49,23 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
             .saveTodo(any(UserDto.class), any(TodoRequestDto.class));
     }
 
+    @DisplayName("할일 생성 요청 실패")
+    @Test
+    void test2() throws Exception {
+        //given
+        given(userRepository.findById(eq(TEST_USER_ID))).willThrow(IllegalArgumentException.class);
+
+        //when
+        ResultActions action = mockMvc.perform(post("/api/todos")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header(JwtUtil.AUTHORIZATION_HEADER, token())
+            .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+
+        //then
+        action.andExpect(status().isBadRequest());
+    }
+
     String token() {
         return jwtUtil.createToken(TEST_USER_ID);
     }
