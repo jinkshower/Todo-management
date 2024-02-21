@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,40 +34,46 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
     @MockBean
     private UserRepository userRepository;
 
-    @DisplayName("할일 생성 요청")
-    @Test
-    void test1() throws Exception {
-        //given
-        given(userRepository.findById(eq(TEST_USER_ID))).willReturn(Optional.of(TEST_USER));
+    @Nested
+    @DisplayName("할일 생성")
+    class postTodo {
 
-        //when
-        ResultActions action = mockMvc.perform(post("/api/todos")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .header(JwtUtil.AUTHORIZATION_HEADER, token())
-            .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+        @DisplayName("할일 생성 요청")
+        @Test
+        void test1() throws Exception {
+            //given
+            given(userRepository.findById(eq(TEST_USER_ID))).willReturn(Optional.of(TEST_USER));
 
-        //then
-        action.andExpect(status().isCreated());
-        verify(todoService, times(1))
-            .saveTodo(any(UserDto.class), any(TodoRequestDto.class));
-    }
+            //when
+            ResultActions action = mockMvc.perform(post("/api/todos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(JwtUtil.AUTHORIZATION_HEADER, token())
+                .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
 
-    @DisplayName("할일 생성 요청 실패")
-    @Test
-    void test2() throws Exception {
-        //given
-        given(userRepository.findById(eq(TEST_USER_ID))).willThrow(IllegalArgumentException.class);
+            //then
+            action.andExpect(status().isCreated());
+            verify(todoService, times(1))
+                .saveTodo(any(UserDto.class), any(TodoRequestDto.class));
+        }
 
-        //when
-        ResultActions action = mockMvc.perform(post("/api/todos")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .header(JwtUtil.AUTHORIZATION_HEADER, token())
-            .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+        @DisplayName("할일 생성 요청 실패")
+        @Test
+        void test2() throws Exception {
+            //given
+            given(userRepository.findById(eq(TEST_USER_ID))).willThrow(
+                IllegalArgumentException.class);
 
-        //then
-        action.andExpect(status().isBadRequest());
+            //when
+            ResultActions action = mockMvc.perform(post("/api/todos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(JwtUtil.AUTHORIZATION_HEADER, token())
+                .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+
+            //then
+            action.andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
@@ -106,6 +113,49 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
         }
     }
 
+    @Nested
+    @DisplayName("할일 수정")
+    class updateTodo {
+
+        @DisplayName("할일 수정 성공")
+        @Test
+        void test1() throws Exception {
+            //given
+            given(userRepository.findById(eq(TEST_USER_ID))).willReturn(Optional.of(TEST_USER));
+
+            //when
+            ResultActions action = mockMvc
+                .perform(patch("/api/todos/{todoId}", TEST_TODO_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(JwtUtil.AUTHORIZATION_HEADER, token())
+                    .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+
+            //then
+            action.andExpect(status().isOk());
+            verify(todoService, times(1))
+                .updateTodo(eq(TEST_TODO_ID), any(UserDto.class), any(TodoRequestDto.class));
+        }
+
+        @DisplayName("할일 수정 실패 - 작성자와 다른 ID")
+        @Test
+        void test2() throws Exception {
+            //given
+            given(userRepository.findById(eq(TEST_USER_ID)))
+                .willThrow(IllegalArgumentException.class);
+
+            //when
+            ResultActions action = mockMvc
+                .perform(patch("/api/todos/{todoId}", TEST_TODO_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(JwtUtil.AUTHORIZATION_HEADER, token())
+                    .content(objectMapper.writeValueAsString(TEST_TODO_REQUEST_DTO)));
+
+            //then
+            action.andExpect(status().isBadRequest());
+        }
+    }
 
     String token() {
         return jwtUtil.createToken(TEST_USER_ID);
