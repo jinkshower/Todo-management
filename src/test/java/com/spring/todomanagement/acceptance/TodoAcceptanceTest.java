@@ -6,6 +6,7 @@ import com.spring.todomanagement.auth.dto.LoginRequestDto;
 import com.spring.todomanagement.auth.dto.SignupRequestDto;
 import com.spring.todomanagement.auth.support.JwtUtil;
 import com.spring.todomanagement.base.AcceptanceTest;
+import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.jdbc.Sql;
 
 @AcceptanceTest
 class TodoAcceptanceTest {
@@ -67,18 +67,17 @@ class TodoAcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-//    @Disabled
-//    @DisplayName("토큰 검증을 통과한 유저는 일정을 등록할 수 있다")
-//    @Test
-//    void test2() {
-//        //given //when
-//        ExtractableResponse<Response> response = postTodo(postInfo(), validToken1);
-//
-//        //then
-//        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-//        List<Todo> foundTodos = todoRepository.findAllById(userId);
-//        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
-//    }
+    @DisplayName("토큰 검증을 통과한 유저는 일정을 등록할 수 있다")
+    @Test
+    void test2() {
+        //given //when
+        ExtractableResponse<Response> response = postTodo(postInfo(), validToken1);
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        List<Todo> foundTodos = todoRepository.findAll();
+        assertThat(foundTodos.get(0).getUser().getId()).isEqualTo(userId);
+    }
 
     @DisplayName("모든 할일 목록을 조회할 수 있다")
     @Test
@@ -256,7 +255,6 @@ class TodoAcceptanceTest {
     }
 
     @AfterEach
-    @Sql("/truncate.sql")
     void clear() {
     }
 
