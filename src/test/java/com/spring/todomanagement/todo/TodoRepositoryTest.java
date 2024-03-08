@@ -23,6 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
+//@DataJpaTest
+//@Import(DataConfig.class)
 public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture {
 
     @Autowired
@@ -34,6 +36,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
     @BeforeEach
     void setUp() {
         userRepository.save(TEST_USER);
+        userRepository.save(TEST_ANOTHER_USER);
     }
 
     @DisplayName("작성일 내림차순 정렬 조회")
@@ -90,7 +93,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
             //given
             Todo testTodo1 = TodoHelper.get(TEST_TODO, 1L, LocalDateTime.now(), TEST_USER);
             Todo testTodo2 = TodoHelper.get(TEST_TODO, 2L, LocalDateTime.now(), TEST_ANOTHER_USER);
-            userRepository.save(TEST_ANOTHER_USER);
+//            userRepository.save(TEST_ANOTHER_USER);
             todoRepository.save(testTodo1);
             todoRepository.save(testTodo2);
             TodoSearchFilter searchFilter = TodoSearchFilter.builder()
@@ -112,7 +115,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
             Todo testTodo1 = TodoHelper.get(TEST_TODO, 1L, LocalDateTime.now(), TEST_USER);
             Todo testTodo2 = TodoHelper.get(TEST_ANOTHER_TODO, 2L, LocalDateTime.now(),
                 TEST_ANOTHER_USER);
-            userRepository.save(TEST_ANOTHER_USER);
+//            userRepository.save(TEST_ANOTHER_USER);
             todoRepository.save(testTodo1);
             todoRepository.save(testTodo2);
             TodoSearchFilter searchFilter = TodoSearchFilter.builder()
@@ -134,7 +137,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
             Todo testTodo1 = TodoHelper.get(TEST_TODO, 1L, LocalDateTime.now(), TEST_USER);
             Todo testTodo2 = TodoHelper.get(TEST_ANOTHER_TODO, 2L, LocalDateTime.now(),
                 TEST_ANOTHER_USER);
-            userRepository.save(TEST_ANOTHER_USER);
+//            userRepository.save(TEST_ANOTHER_USER);
             todoRepository.save(testTodo1);
             todoRepository.save(testTodo2);
             TodoSearchFilter searchFilter = TodoSearchFilter.builder()
