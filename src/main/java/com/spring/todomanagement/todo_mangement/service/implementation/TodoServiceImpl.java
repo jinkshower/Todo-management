@@ -8,6 +8,7 @@ import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
 import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
+import com.spring.todomanagement.todo_mangement.repository.TodoQueryRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoQueryRepository todoQueryRepository;
 
     @Transactional
     @Override
@@ -35,7 +37,7 @@ public class TodoServiceImpl implements TodoService {
     @Transactional(readOnly = true)
     @Override
     public List<TodoResponseDto> getAllTodos() {
-        return todoRepository.findAllByOrderByCreatedAtDesc().stream()
+        return todoQueryRepository.findAllByOrderByCreatedAtDesc().stream()
             .map(TodoResponseDto::new)
             .toList();
     }
@@ -63,7 +65,7 @@ public class TodoServiceImpl implements TodoService {
         User user = userDto.getUser();
         Todo todo = findTodo(todoId);
 
-        todo.changeStatus(user);
+        todo.changeStatus(user.getId());
         return todo.getId();
     }
 

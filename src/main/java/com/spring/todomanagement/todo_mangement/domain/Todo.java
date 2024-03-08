@@ -69,13 +69,13 @@ public class Todo extends Timestamped implements Serializable {
     }
 
     public void update(User user, TodoRequestDto requestDto) {
-        validate(user);
+        validate(user.getId());
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
     }
 
-    public void changeStatus(User user) {
-        validate(user);
+    public void changeStatus(Long userId) {
+        validate(userId);
         if (this.todoStatus == TodoStatus.DONE) {
             this.todoStatus = TodoStatus.NOT_DONE;
         } else {
@@ -83,10 +83,10 @@ public class Todo extends Timestamped implements Serializable {
         }
     }
 
-    private void validate(User user) {
-        if (!Objects.equals(this.user.getId(), user.getId())) {
+    private void validate(Long userId) {
+        if (!Objects.equals(this.user.getId(), userId)) {
             String errorMessage = "작성자가 다릅니다. 할일 작성자 ID: " + this.user.getId()
-                + ", 요청 사용자 ID: " + user.getId();
+                + ", 요청 사용자 ID: " + userId;
             log.error(errorMessage);
             throw new InvalidUserException(errorMessage);
         }
