@@ -14,6 +14,7 @@ import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoQueryRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
+import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +39,16 @@ public class TodoServiceTest implements TodoFixture {
     @Mock
     TodoQueryRepository todoQueryRepository;
 
+    @Mock
+    UserRepository userRepository;
+
     @DisplayName("할일 생성")
     @Test
     void test1() {
         //given
         Todo testTodo = TEST_TODO;
         given(todoRepository.save(any(Todo.class))).willReturn(testTodo);
+        given(userRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_USER));
 
         //when
         TodoResponseDto actual =
@@ -93,6 +98,7 @@ public class TodoServiceTest implements TodoFixture {
         //given
         Todo testTodo = TEST_TODO;
         given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
+        given(userRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_USER));
 
         //when
         TodoRequestDto request = TodoRequestDto.builder()
@@ -111,6 +117,7 @@ public class TodoServiceTest implements TodoFixture {
     void test5() {
         //given
         given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_TODO));
+        given(userRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_USER));
 
         //when
         todoService.deleteTodo(TEST_TODO_ID, TEST_USER_DTO);
@@ -126,6 +133,7 @@ public class TodoServiceTest implements TodoFixture {
         //given
         Todo testTodo = TEST_TODO;
         given(todoRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(testTodo));
+        given(userRepository.findById(eq(TEST_TODO_ID))).willReturn(Optional.of(TEST_USER));
 
         //when
         todoService.changeTodoStatus(TEST_TODO_ID, TEST_USER_DTO);

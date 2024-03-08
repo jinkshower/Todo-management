@@ -17,7 +17,7 @@ public interface UserFixture {
         .build();
 
     UserDto TEST_USER_DTO = UserDto.builder()
-        .user(TEST_USER)
+        .userId(TEST_USER_ID)
         .build();
 
     User TEST_ANOTHER_USER = User.builder()

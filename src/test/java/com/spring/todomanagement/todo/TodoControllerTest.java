@@ -1,7 +1,7 @@
 package com.spring.todomanagement.todo;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
@@ -17,6 +17,7 @@ import com.spring.todomanagement.auth.support.JwtUtil;
 import com.spring.todomanagement.common.ControllerTest;
 import com.spring.todomanagement.common.TodoFixture;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
+import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
 import java.util.Optional;
@@ -62,8 +63,8 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
         @Test
         void test2() throws Exception {
             //given
-            given(userRepository.findById(eq(TEST_USER_ID))).willThrow(
-                IllegalArgumentException.class);
+            given(todoService.saveTodo(any(UserDto.class), any(TodoRequestDto.class))).willThrow(
+                InvalidUserException.class);
 
             //when
             ResultActions action = mockMvc.perform(post("/api/todos")
@@ -142,7 +143,8 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
         @Test
         void test2() throws Exception {
             //given
-            given(userRepository.findById(eq(TEST_USER_ID)))
+            given(todoService.updateTodo(eq(TEST_TODO_ID), any(UserDto.class),
+                any(TodoRequestDto.class)))
                 .willThrow(IllegalArgumentException.class);
 
             //when
@@ -186,8 +188,8 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
         @Test
         void test2() throws Exception {
             //given
-            given(userRepository.findById(eq(TEST_USER_ID)))
-                .willThrow(IllegalArgumentException.class);
+            given(todoService.deleteTodo(eq(TEST_TODO_ID), any(UserDto.class))).willThrow(
+                InvalidUserException.class);
 
             //when
             ResultActions action = mockMvc
@@ -230,7 +232,7 @@ public class TodoControllerTest extends ControllerTest implements TodoFixture {
         @Test
         void test2() throws Exception {
             //given
-            given(userRepository.findById(eq(TEST_USER_ID)))
+            given(todoService.changeTodoStatus(eq(TEST_TODO_ID), any(UserDto.class)))
                 .willThrow(IllegalArgumentException.class);
 
             //when

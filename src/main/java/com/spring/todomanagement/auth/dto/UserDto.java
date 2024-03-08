@@ -1,6 +1,5 @@
 package com.spring.todomanagement.auth.dto;
 
-import com.spring.todomanagement.todo_mangement.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,5 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class UserDto {
 
-    private final User user;
+    //    private final User user;
+    private final Long userId;
 }

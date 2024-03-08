@@ -1,10 +1,7 @@
 package com.spring.todomanagement.auth.support;
 
 import com.spring.todomanagement.auth.dto.UserDto;
-import com.spring.todomanagement.auth.exception.AuthenticationException;
 import com.spring.todomanagement.auth.exception.InvalidTokenException;
-import com.spring.todomanagement.todo_mangement.domain.User;
-import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +18,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -30,7 +26,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
         String token = jwtUtil.getJwtFromHeader(request);
@@ -40,15 +36,8 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
             throw new InvalidTokenException(errorMessage);
         }
         Long userId = jwtUtil.getUserIdFromToken(token);
-        User found = userRepository.findById(userId).orElseThrow(
-                () -> {
-                    String errorMessage = "ID로 유저를 찾을 수 없습니다. 요청 ID: " + userId;
-                    log.error(errorMessage);
-                    return new AuthenticationException(errorMessage);
-                }
-        );
         log.debug("검증 통과!");
 
-        return new UserDto(found);
+        return new UserDto(userId);
     }
 }

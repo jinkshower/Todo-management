@@ -10,6 +10,7 @@ import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
 import com.spring.todomanagement.todo_mangement.exception.InvalidUserException;
 import com.spring.todomanagement.todo_mangement.repository.TodoQueryRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
+import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
 import java.util.List;
 import java.util.Objects;
@@ -25,11 +26,13 @@ public class TodoServiceImpl implements TodoService {
 
     private final TodoRepository todoRepository;
     private final TodoQueryRepository todoQueryRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
     public TodoResponseDto saveTodo(UserDto userDto, TodoRequestDto requestDto) {
-        Todo entity = requestDto.toEntity(userDto.getUser());
+        User user = findUser(userDto.getUserId());
+        Todo entity = requestDto.toEntity(user);
         todoRepository.save(entity);
         return new TodoResponseDto(entity);
     }
@@ -52,7 +55,7 @@ public class TodoServiceImpl implements TodoService {
     @Transactional
     @Override
     public TodoResponseDto updateTodo(Long todoId, UserDto userDto, TodoRequestDto requestDto) {
-        User user = userDto.getUser();
+        User user = findUser(userDto.getUserId());
         Todo todo = findTodo(todoId);
 
         todo.update(user, requestDto);
@@ -62,7 +65,7 @@ public class TodoServiceImpl implements TodoService {
     @Transactional
     @Override
     public Long changeTodoStatus(Long todoId, UserDto userDto) {
-        User user = userDto.getUser();
+        User user = findUser(userDto.getUserId());
         Todo todo = findTodo(todoId);
 
         todo.changeStatus(user.getId());
@@ -72,7 +75,7 @@ public class TodoServiceImpl implements TodoService {
     @Transactional
     @Override
     public Long deleteTodo(Long todoId, UserDto userDto) {
-        User user = userDto.getUser();
+        User user = findUser(userDto.getUserId());
         Todo todo = findTodo(todoId);
 
         validateUserId(todo.getUser().getId(), user.getId());
@@ -86,6 +89,16 @@ public class TodoServiceImpl implements TodoService {
         return todoQueryRepository.searchByFilter(searchFilter).stream()
             .map(TodoResponseDto::new)
             .toList();
+    }
+
+    private User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+            () -> {
+                String errorMessage = String.format("없는 유저입니다. 요청 ID: " + userId);
+                log.error(errorMessage);
+                return new InvalidUserException(errorMessage);
+            }
+        );
     }
 
     private Todo findTodo(Long todoId) {
