@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -53,8 +52,9 @@ class AuthAcceptanceTest {
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
-        ResponseEntity<CommonResponse> responseEntity =
-            restTemplate.postForEntity(url, requestDto, CommonResponse.class);
+
+        var responseEntity = restTemplate.postForEntity(
+            url, requestDto, CommonResponse.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -83,7 +83,7 @@ class AuthAcceptanceTest {
         String url = "http://localhost:" + port + "/api/auth/login";
 
         //when
-        ResponseEntity<CommonResponse> responseEntity =
+        var responseEntity =
             restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
@@ -105,7 +105,7 @@ class AuthAcceptanceTest {
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
-        ResponseEntity<CommonResponse> responseEntity =
+        var responseEntity =
             restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
@@ -126,7 +126,7 @@ class AuthAcceptanceTest {
         String url = "http://localhost:" + port + "/api/auth/signup";
 
         //when
-        ResponseEntity<CommonResponse> responseEntity =
+        var responseEntity =
             restTemplate.postForEntity(url, requestDto, CommonResponse.class);
 
         //then
