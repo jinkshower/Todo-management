@@ -9,7 +9,6 @@ import com.spring.todomanagement.todo_mangement.domain.Timestamped;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
-import com.spring.todomanagement.todo_mangement.repository.TodoQueryRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -28,9 +27,6 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
 
     @Autowired
     TodoRepository todoRepository;
-
-    @Autowired
-    TodoQueryRepository todoQueryRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -55,7 +51,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
         todoRepository.save(testTodo3);
 
         //when
-        List<Todo> actual = todoQueryRepository.findAllByOrderByCreatedAtDesc();
+        List<Todo> actual = todoRepository.findAllByOrderByCreatedAtDesc();
 
         //then
         List<LocalDateTime> times = actual.stream()
@@ -81,7 +77,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
             TodoSearchFilter searchFilter = TodoSearchFilter.builder().build();
 
             //when
-            List<Todo> todos = todoQueryRepository.searchByFilter(searchFilter);
+            List<Todo> todos = todoRepository.searchByFilter(searchFilter);
 
             //then
             assertThat(todos.size()).isEqualTo(1);
@@ -102,7 +98,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
                 .build();
 
             //when
-            List<Todo> todos = todoQueryRepository.searchByFilter(searchFilter);
+            List<Todo> todos = todoRepository.searchByFilter(searchFilter);
 
             //then
             assertThat(todos.size()).isEqualTo(1);
@@ -124,7 +120,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
                 .build();
 
             //when
-            List<Todo> todos = todoQueryRepository.searchByFilter(searchFilter);
+            List<Todo> todos = todoRepository.searchByFilter(searchFilter);
 
             //then
             assertThat(todos.size()).isEqualTo(1);
@@ -148,7 +144,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
                 .build();
 
             //when
-            List<Todo> todos = todoQueryRepository.searchByFilter(searchFilter);
+            List<Todo> todos = todoRepository.searchByFilter(searchFilter);
 
             //then
             assertThat(todos.size()).isEqualTo(1);

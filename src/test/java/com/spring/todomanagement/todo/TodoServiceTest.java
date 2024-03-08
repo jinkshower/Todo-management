@@ -12,7 +12,6 @@ import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
-import com.spring.todomanagement.todo_mangement.repository.TodoQueryRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import com.spring.todomanagement.todo_mangement.service.implementation.TodoServiceImpl;
@@ -35,9 +34,6 @@ public class TodoServiceTest implements TodoFixture {
 
     @Mock
     TodoRepository todoRepository;
-
-    @Mock
-    TodoQueryRepository todoQueryRepository;
 
     @Mock
     UserRepository userRepository;
@@ -80,7 +76,7 @@ public class TodoServiceTest implements TodoFixture {
         //given
         Todo testTodo = TEST_TODO;
         Todo testTodo2 = TEST_ANOTHER_TODO;
-        given(todoQueryRepository.findAllByOrderByCreatedAtDesc())
+        given(todoRepository.findAllByOrderByCreatedAtDesc())
             .willReturn(List.of(testTodo, testTodo2));
 
         //when
