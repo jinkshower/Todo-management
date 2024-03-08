@@ -1,4 +1,4 @@
-package com.spring.todomanagement.common;
+package com.spring.todomanagement.common.util;
 
 import com.spring.todomanagement.auth.config.WebConfig;
 import com.spring.todomanagement.auth.support.AuthArgumentResolver;
@@ -18,6 +18,9 @@ import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuer
 
 @TestConfiguration
 public class ExternalConfig {
+
+//    @PersistenceContext
+//    private EntityManager em;
 
     @Bean
     public JwtUtil jwtUtil() {
@@ -189,4 +192,14 @@ public class ExternalConfig {
     public WebConfig webConfig() {
         return new WebConfig(new AuthArgumentResolver(jwtUtil(), userRepository()));
     }
+//
+//    @Bean
+//    public JPAQueryFactory jpaQueryFactory() {
+//        return new JPAQueryFactory(em);
+//    }
+//
+//    @Bean
+//    public TodoQueryRepository todoQueryRepository() {
+//        return new TodoQueryRepository(jpaQueryFactory());
+//    }
 }

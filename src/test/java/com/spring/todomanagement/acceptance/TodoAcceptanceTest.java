@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.spring.todomanagement.auth.dto.LoginRequestDto;
 import com.spring.todomanagement.auth.dto.SignupRequestDto;
 import com.spring.todomanagement.auth.support.JwtUtil;
-import com.spring.todomanagement.base.AcceptanceTest;
+import com.spring.todomanagement.common.util.DatabaseSupporter;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
@@ -16,17 +16,19 @@ import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 
-@AcceptanceTest
-class TodoAcceptanceTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class TodoAcceptanceTest extends DatabaseSupporter {
 
     @LocalServerPort
     private int port;
@@ -252,10 +254,6 @@ class TodoAcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         List<String> list = response.jsonPath().getList("data");
         assertThat(list.size()).isEqualTo(1);
-    }
-
-    @AfterEach
-    void clear() {
     }
 
     private ExtractableResponse<Response> getAllTodo() {

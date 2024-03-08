@@ -2,6 +2,7 @@ package com.spring.todomanagement.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.todomanagement.auth.support.JwtUtil;
+import com.spring.todomanagement.common.util.ExternalConfig;
 import com.spring.todomanagement.todo_mangement.controller.TodoController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
