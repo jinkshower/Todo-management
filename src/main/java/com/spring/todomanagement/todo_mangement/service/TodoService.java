@@ -1,6 +1,7 @@
 package com.spring.todomanagement.todo_mangement.service;
 
 import com.spring.todomanagement.auth.dto.UserDto;
+import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import java.util.List;
@@ -19,6 +20,5 @@ public interface TodoService {
 
     Long deleteTodo(Long todoId, UserDto userDto);
 
-    List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title,
-        UserDto userDto);
+    List<TodoResponseDto> searchTodos(TodoSearchFilter searchFilter);
 }

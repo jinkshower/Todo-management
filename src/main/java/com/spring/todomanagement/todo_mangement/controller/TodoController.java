@@ -3,6 +3,7 @@ package com.spring.todomanagement.todo_mangement.controller;
 import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.auth.support.Login;
 import com.spring.todomanagement.common.CommonResponse;
+import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
@@ -14,12 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -60,13 +61,10 @@ public class TodoController {
     }
 
     @GetMapping("/todos/filter")
-    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> getFilteredTodos(
-        @RequestParam(defaultValue = "false") Boolean completed,
-        @RequestParam(required = false) Long userId,
-        @RequestParam(required = false) String title,
-        @Login UserDto userDto) {
-        List<TodoResponseDto> todoResponseDtos = todoService.getFilteredTodos(completed, userId,
-            title, userDto);
+    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> searchTodos(
+        @ModelAttribute("todoSearchFilter") TodoSearchFilter todoSearchFilter) {
+        List<TodoResponseDto> todoResponseDtos = todoService.searchTodos(todoSearchFilter);
+        log.info(String.valueOf(todoSearchFilter.getUserId()));
         return ResponseEntity.ok().body(CommonResponse.<List<TodoResponseDto>>builder()
             .statusCode(HttpStatus.OK.value())
             .message("검색 결과가 조회되었습니다.")

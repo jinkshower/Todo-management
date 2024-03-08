@@ -2,8 +2,8 @@ package com.spring.todomanagement.todo_mangement.service.implementation;
 
 import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
-import com.spring.todomanagement.todo_mangement.domain.Todos;
 import com.spring.todomanagement.todo_mangement.domain.User;
+import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
@@ -82,16 +82,8 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public List<TodoResponseDto> getFilteredTodos(Boolean completed, Long userId, String title,
-        UserDto userDto) {
-        if (userId != null) {
-            validateUserId(userDto.getUser().getId(), userId);
-        }
-
-        Todos todos = new Todos(todoRepository.findAll());
-
-        List<Todo> filtered = todos.filter(completed, userId, title);
-        return filtered.stream()
+    public List<TodoResponseDto> searchTodos(TodoSearchFilter searchFilter) {
+        return todoQueryRepository.searchByFilter(searchFilter).stream()
             .map(TodoResponseDto::new)
             .toList();
     }
