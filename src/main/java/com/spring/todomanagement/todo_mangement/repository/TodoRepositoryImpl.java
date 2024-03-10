@@ -11,11 +11,9 @@ import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.thymeleaf.util.StringUtils;
 
 @RequiredArgsConstructor
-@Repository
 public class TodoRepositoryImpl implements TodoQueryRepository {
 
     private final JPAQueryFactory queryFactory;
