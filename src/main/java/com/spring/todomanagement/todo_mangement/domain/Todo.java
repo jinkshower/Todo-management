@@ -53,7 +53,8 @@ public class Todo extends Timestamped implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "todo", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "todo", cascade = {CascadeType.PERSIST,
+        CascadeType.REMOVE})
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
