@@ -5,12 +5,17 @@ import static com.spring.todomanagement.todo_mangement.domain.QTodo.todo;
 import static com.spring.todomanagement.todo_mangement.domain.QUser.user;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
 import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.thymeleaf.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -42,6 +47,24 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
                 eqStatus(todoSearchFilter.getTodoStatus())
             )
             .fetch();
+    }
+
+    public Page<Todo> findAll(Pageable pageable) {
+        JPAQuery<Todo> query = queryFactory.select(todo)
+            .from(todo)
+            .join(todo.user, user).fetchJoin()
+            .leftJoin(todo.comments, comment).fetchJoin()
+            .orderBy(todo.createdAt.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+        List<Todo> fetch = query.fetch();
+
+        long totalSize = queryFactory.select(Wildcard.count)
+            .from(todo)
+            .join(todo.user, user).fetchJoin()
+            .leftJoin(todo.comments, comment).fetchJoin()
+            .fetch().get(0);
+        return PageableExecutionUtils.getPage(fetch, pageable, () -> totalSize);
     }
 
     private BooleanExpression eqTitle(String title) {
