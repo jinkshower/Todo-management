@@ -3,8 +3,8 @@ package com.spring.todomanagement.todo_mangement.controller;
 import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.auth.support.Login;
 import com.spring.todomanagement.common.CommonResponse;
-import com.spring.todomanagement.todo_mangement.dto.FollowResponseDto;
-import com.spring.todomanagement.todo_mangement.service.FollowService;
+import com.spring.todomanagement.todo_mangement.dto.LikeResponseDto;
+import com.spring.todomanagement.todo_mangement.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
-public class FollowController {
+public class LikeController {
 
-    private final FollowService followService;
+    private final LikeService likeService;
 
-    @PostMapping("/follows/{toUserId}")
-    public ResponseEntity<CommonResponse<FollowResponseDto>> createFollow(
+    @PostMapping("/likes/{postId}")
+    public ResponseEntity<CommonResponse<LikeResponseDto>> createFollow(
         @Login UserDto userDto,
-        @PathVariable Long toUserId) {
-        FollowResponseDto responseDto = followService.createFollow(userDto, toUserId);
+        @PathVariable Long postId) {
+        LikeResponseDto responseDto = likeService.createLike(userDto, postId);
         return ResponseEntity.status(HttpStatus.OK.value()).body(
-            CommonResponse.<FollowResponseDto>builder()
+            CommonResponse.<LikeResponseDto>builder()
                 .message("팔로우가 성공하였습니다.")
                 .data(responseDto)
                 .build());
