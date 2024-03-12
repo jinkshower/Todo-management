@@ -14,11 +14,15 @@ import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
@@ -54,7 +58,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
         todoRepository.save(testTodo3);
 
         //when
-        List<Todo> actual = todoRepository.findAllByOrderByCreatedAtDesc();
+        Page<Todo> actual = todoRepository.findAllByOrderByCreatedAtDesc(PAGE_DTO.toPageable());
 
         //then
         List<LocalDateTime> times = actual.stream()
@@ -153,5 +157,42 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
             assertThat(todos.size()).isEqualTo(1);
             assertThat(todos).doesNotContain(testTodo2);
         }
+    }
+
+    @Test
+    @Disabled
+    void pageTest() {
+        for (int i = 0; i < 100; i++) {
+            todoRepository.save(Todo.builder()
+                .title(TEST_TODO_TITLE)
+                .content(TEST_TODO_CONTENT + 1)
+                .user(TEST_USER)
+                .build());
+        }
+
+        System.out.println(todoRepository.findAll().size());
+        Page<Todo> found = todoRepository.findAllByOrderByCreatedAtDesc(
+            PAGE_DTO.toPageable());
+        Pageable pageable = found.getPageable();
+        Sort sort = pageable.getSort();
+        // 페이지 정보
+        System.out.println("Sort (Sorted): " + sort.isSorted());
+        System.out.println("Sort (Unsorted): " + sort.isUnsorted());
+        System.out.println("Sort (Empty): " + sort.isEmpty());
+        System.out.println("Page Size: " + pageable.getPageSize());
+        System.out.println("Page Number: " + pageable.getPageNumber());
+        System.out.println("Offset: " + pageable.getOffset());
+        System.out.println("Is Paged: " + pageable.isPaged());
+        System.out.println("Is Unpaged: " + pageable.isUnpaged());
+
+// 전체 페이지 정보
+        System.out.println("Total Pages: " + found.getTotalPages());
+        System.out.println("Total Elements: " + found.getTotalElements());
+        System.out.println("Is Last Page: " + found.isLast());
+        System.out.println("Current Page Number: " + found.getNumber() + 1);
+        System.out.println("Is First Page: " + found.isFirst());
+        System.out.println("Is Empty: " + found.isEmpty());
+        System.out.println("Size: " + found.getSize());
+        System.out.println("Number Of Elements: " + found.getNumberOfElements());
     }
 }

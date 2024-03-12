@@ -1,6 +1,7 @@
 package com.spring.todomanagement.common;
 
 import com.spring.todomanagement.todo_mangement.domain.Todo;
+import com.spring.todomanagement.todo_mangement.dto.PageDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 
@@ -24,5 +25,11 @@ public interface TodoFixture extends UserFixture {
         .title(ANOTHER_PREFIX + TEST_TODO_TITLE)
         .content(ANOTHER_PREFIX + TEST_TODO_CONTENT)
         .user(TEST_ANOTHER_USER)
+        .build();
+
+    PageDto PAGE_DTO = PageDto.builder()
+        .currentPage(1)
+        .size(10)
+        .sortBy("createdAt")
         .build();
 }

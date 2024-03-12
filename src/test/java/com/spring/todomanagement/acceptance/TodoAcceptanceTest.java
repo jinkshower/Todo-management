@@ -258,7 +258,7 @@ class TodoAcceptanceTest extends DatabaseSupporter {
 
     private ExtractableResponse<Response> getAllTodo() {
         return RestAssured.given().log().all()
-            .when().get("/api/todos")
+            .when().get("/api/todos?currentPage=1&size=10&sortBy=createdAt")
             .then().log().all()
             .extract();
     }

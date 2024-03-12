@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.spring.todomanagement.common.TodoFixture;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
+import com.spring.todomanagement.todo_mangement.dto.PageDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
@@ -25,6 +26,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class TodoServiceTest implements TodoFixture {
@@ -76,11 +78,16 @@ public class TodoServiceTest implements TodoFixture {
         //given
         Todo testTodo = TEST_TODO;
         Todo testTodo2 = TEST_ANOTHER_TODO;
-        given(todoRepository.findAllByOrderByCreatedAtDesc())
-            .willReturn(List.of(testTodo, testTodo2));
+        PageDto pageDto = PageDto.builder()
+            .currentPage(1)
+            .size(10)
+            .sortBy("createdAt")
+            .build();
+        given(todoRepository.findAllByOrderByCreatedAtDesc(pageDto.toPageable()))
+            .willReturn(new PageImpl<>(List.of(testTodo, testTodo2), pageDto.toPageable(), 2));
 
         //when
-        List<TodoResponseDto> actual = todoService.getAllTodos();
+        List<TodoResponseDto> actual = todoService.getAllTodos(pageDto);
 
         //then
         List<TodoResponseDto> expected = Stream.of(testTodo, testTodo2)
