@@ -26,8 +26,6 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
     public Page<Todo> findAllByOrderByCreatedAtDesc(Pageable pageable) {
         JPAQuery<Long> idQuery = queryFactory.select(todo.id)
             .from(todo)
-            .join(todo.user, user)
-            .leftJoin(todo.comments, comment)
             .orderBy(todo.createdAt.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
