@@ -4,6 +4,7 @@ import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.User;
 import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
+import com.spring.todomanagement.todo_mangement.dto.PageDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.exception.InvalidTodoException;
@@ -13,8 +14,10 @@ import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +40,9 @@ public class TodoServiceImpl implements TodoService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<TodoResponseDto> getAllTodos() {
-        return todoRepository.findAllByOrderByCreatedAtDesc().stream()
-            .map(TodoResponseDto::new)
-            .toList();
+    public List<TodoResponseDto> getAllTodos(PageDto pageDto) {
+        Page<Todo> todos = todoRepository.findAllByOrderByCreatedAtDesc(pageDto.toPageable());
+        return todos.stream().map(TodoResponseDto::new).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

@@ -4,6 +4,7 @@ import com.spring.todomanagement.auth.dto.UserDto;
 import com.spring.todomanagement.auth.support.Login;
 import com.spring.todomanagement.common.CommonResponse;
 import com.spring.todomanagement.todo_mangement.domain.searchfilter.TodoSearchFilter;
+import com.spring.todomanagement.todo_mangement.dto.PageDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoRequestDto;
 import com.spring.todomanagement.todo_mangement.dto.TodoResponseDto;
 import com.spring.todomanagement.todo_mangement.service.TodoService;
@@ -43,8 +44,9 @@ public class TodoController {
     }
 
     @GetMapping("/todos")
-    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> getAllTodos() {
-        List<TodoResponseDto> todoResponseDtos = todoService.getAllTodos();
+    public ResponseEntity<CommonResponse<List<TodoResponseDto>>> getAllTodos(@ModelAttribute
+    PageDto pageDto) {
+        List<TodoResponseDto> todoResponseDtos = todoService.getAllTodos(pageDto);
         return ResponseEntity.ok().body(CommonResponse.<List<TodoResponseDto>>builder()
             .statusCode(HttpStatus.OK.value())
             .message("모든 할일이 조회되었습니다.")

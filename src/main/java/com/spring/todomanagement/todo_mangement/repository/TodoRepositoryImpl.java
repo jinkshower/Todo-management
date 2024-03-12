@@ -5,7 +5,6 @@ import static com.spring.todomanagement.todo_mangement.domain.QTodo.todo;
 import static com.spring.todomanagement.todo_mangement.domain.QUser.user;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
@@ -23,18 +22,30 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    //    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public List<Todo> findAllByOrderByCreatedAtDesc() {
-        return queryFactory
-            .select(todo)
+    @Override
+    public Page<Todo> findAllByOrderByCreatedAtDesc(Pageable pageable) {
+        JPAQuery<Long> idQuery = queryFactory.select(todo.id)
+            .from(todo)
+            .join(todo.user, user)
+            .leftJoin(todo.comments, comment)
+            .orderBy(todo.createdAt.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+        List<Long> ids = idQuery.fetch();
+        JPAQuery<Todo> query = queryFactory.select(todo)
             .from(todo)
             .join(todo.user, user).fetchJoin()
             .leftJoin(todo.comments, comment).fetchJoin()
             .orderBy(todo.createdAt.desc())
-            .fetch();
+            .where(todo.id.in(ids));
+        List<Todo> fetch = query.fetch();
+        long totalSize = queryFactory.select(todo.id.countDistinct())
+            .from(todo)
+            .fetch().get(0);
+        return PageableExecutionUtils.getPage(fetch, pageable, () -> totalSize);
     }
 
-    //    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Override
     public List<Todo> searchByFilter(TodoSearchFilter todoSearchFilter) {
         return queryFactory
             .select(todo)
@@ -47,24 +58,6 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
                 eqStatus(todoSearchFilter.getTodoStatus())
             )
             .fetch();
-    }
-
-    public Page<Todo> findAll(Pageable pageable) {
-        JPAQuery<Todo> query = queryFactory.select(todo)
-            .from(todo)
-            .join(todo.user, user).fetchJoin()
-            .leftJoin(todo.comments, comment).fetchJoin()
-            .orderBy(todo.createdAt.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize());
-        List<Todo> fetch = query.fetch();
-
-        long totalSize = queryFactory.select(Wildcard.count)
-            .from(todo)
-            .join(todo.user, user).fetchJoin()
-            .leftJoin(todo.comments, comment).fetchJoin()
-            .fetch().get(0);
-        return PageableExecutionUtils.getPage(fetch, pageable, () -> totalSize);
     }
 
     private BooleanExpression eqTitle(String title) {

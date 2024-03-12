@@ -1,12 +1,14 @@
 package com.spring.todomanagement.todo_mangement.dto;
 
 import java.util.Objects;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @Getter
+@Builder
 public class PageDto {
 
     private int currentPage;
