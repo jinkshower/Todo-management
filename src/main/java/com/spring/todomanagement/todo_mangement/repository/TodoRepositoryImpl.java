@@ -5,7 +5,6 @@ import static com.spring.todomanagement.todo_mangement.domain.QTodo.todo;
 import static com.spring.todomanagement.todo_mangement.domain.QUser.user;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spring.todomanagement.todo_mangement.domain.Todo;
 import com.spring.todomanagement.todo_mangement.domain.TodoStatus;
@@ -24,22 +23,16 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
 
     @Override
     public Page<Todo> findAllByOrderByCreatedAtDesc(Pageable pageable) {
-        JPAQuery<Long> idQuery = queryFactory.select(todo.id)
+        List<Todo> fetch = queryFactory.select(todo)
             .from(todo)
             .orderBy(todo.createdAt.desc())
             .offset(pageable.getOffset())
-            .limit(pageable.getPageSize());
-        List<Long> ids = idQuery.fetch();
-        JPAQuery<Todo> query = queryFactory.select(todo)
+            .limit(pageable.getPageSize())
+            .fetch();
+        long totalSize = queryFactory
+            .select(todo.count())
             .from(todo)
-            .join(todo.user, user).fetchJoin()
-            .leftJoin(todo.comments, comment).fetchJoin()
-            .orderBy(todo.createdAt.desc())
-            .where(todo.id.in(ids));
-        List<Todo> fetch = query.fetch();
-        long totalSize = queryFactory.select(todo.id.countDistinct())
-            .from(todo)
-            .fetch().get(0);
+            .fetchFirst();
         return PageableExecutionUtils.getPage(fetch, pageable, () -> totalSize);
     }
 
@@ -56,6 +49,26 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
                 eqStatus(todoSearchFilter.getTodoStatus())
             )
             .fetch();
+    }
+
+    public Page<Todo> findAll(Pageable pageable) {
+        // 페이징 정보를 적용하여 쿼리 실행
+        List<Todo> todos = queryFactory
+            .select(todo)
+            .from(todo)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        // 전체 개수를 조회
+        long totalSize = queryFactory
+            .select(todo.count())
+            .from(todo)
+            .fetchFirst();
+
+        // 페이징 처리된 결과를 Page 객체로 변환하여 반환
+//        return new PageImpl<>(todos, pageable, totalSize);
+        return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);
     }
 
     private BooleanExpression eqTitle(String title) {

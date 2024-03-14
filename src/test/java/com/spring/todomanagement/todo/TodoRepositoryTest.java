@@ -162,11 +162,12 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
     @Test
     @Disabled
     void pageTest() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 15; i++) {
             todoRepository.save(Todo.builder()
                 .title(TEST_TODO_TITLE)
                 .content(TEST_TODO_CONTENT + 1)
                 .user(TEST_USER)
+                .likeCount(0L)
                 .build());
         }
 
@@ -185,7 +186,7 @@ public class TodoRepositoryTest extends DatabaseSupporter implements TodoFixture
         System.out.println("Is Paged: " + pageable.isPaged());
         System.out.println("Is Unpaged: " + pageable.isUnpaged());
 
-// 전체 페이지 정보
+        // 전체 페이지 정보
         System.out.println("Total Pages: " + found.getTotalPages());
         System.out.println("Total Elements: " + found.getTotalElements());
         System.out.println("Is Last Page: " + found.isLast());

@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.BatchSize;
 
 @Slf4j
 @Getter
@@ -56,6 +57,7 @@ public class Todo extends Timestamped implements Serializable {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "todo", cascade = {CascadeType.PERSIST,
         CascadeType.REMOVE})
     private List<Comment> comments = new ArrayList<>();
