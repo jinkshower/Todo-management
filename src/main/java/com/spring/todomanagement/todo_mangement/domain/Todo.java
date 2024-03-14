@@ -48,6 +48,9 @@ public class Todo extends Timestamped implements Serializable {
     @Column(nullable = false)
     private TodoStatus todoStatus = TodoStatus.NOT_DONE;
 
+    @Column(nullable = false)
+    private Long likeCount;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -58,10 +61,11 @@ public class Todo extends Timestamped implements Serializable {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Todo(String title, String content, User user) {
+    public Todo(String title, String content, User user, Long likeCount) {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.likeCount = likeCount;
     }
 
     public void addComment(Comment comment) {
@@ -82,6 +86,10 @@ public class Todo extends Timestamped implements Serializable {
         } else {
             this.todoStatus = TodoStatus.DONE;
         }
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount += 1L;
     }
 
     private void validate(Long userId) {

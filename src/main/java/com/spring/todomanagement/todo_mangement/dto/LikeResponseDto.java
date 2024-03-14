@@ -13,6 +13,6 @@ public class LikeResponseDto {
     public LikeResponseDto(Like entity) {
         this.id = entity.getId();
         this.fromUserId = entity.getUserId();
-        this.todoId = entity.getTodo().getId();
+        this.todoId = entity.getTodoId();
     }
 }

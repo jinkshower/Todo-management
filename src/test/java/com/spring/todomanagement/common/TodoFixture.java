@@ -19,12 +19,14 @@ public interface TodoFixture extends UserFixture {
         .title(TEST_TODO_TITLE)
         .content(TEST_TODO_CONTENT)
         .user(TEST_USER)
+        .likeCount(0L)
         .build();
     TodoResponseDto TEST_TODO_RESPONSE_DTO = new TodoResponseDto(TEST_TODO);
     Todo TEST_ANOTHER_TODO = Todo.builder()
         .title(ANOTHER_PREFIX + TEST_TODO_TITLE)
         .content(ANOTHER_PREFIX + TEST_TODO_CONTENT)
         .user(TEST_ANOTHER_USER)
+        .likeCount(0L)
         .build();
 
     PageDto PAGE_DTO = PageDto.builder()

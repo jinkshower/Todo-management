@@ -22,14 +22,14 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    @PostMapping("/likes/{postId}")
+    @PostMapping("/likes/{todoId}")
     public ResponseEntity<CommonResponse<LikeResponseDto>> createFollow(
         @Login UserDto userDto,
-        @PathVariable Long postId) {
-        LikeResponseDto responseDto = likeService.createLike(userDto, postId);
+        @PathVariable Long todoId) {
+        LikeResponseDto responseDto = likeService.createLike(userDto.getUserId(), todoId);
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             CommonResponse.<LikeResponseDto>builder()
-                .message("팔로우가 성공하였습니다.")
+                .message("좋아요가 성공했습니다.")
                 .data(responseDto)
                 .build());
     }

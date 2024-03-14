@@ -21,6 +21,7 @@ public class TodoResponseDto {
     private String author;
     private TodoStatus status;
     private LocalDateTime createdAt;
+    private Long likeCount;
 
     private final List<CommentResponseDto> comments = new ArrayList<>();
 
@@ -31,6 +32,7 @@ public class TodoResponseDto {
         this.author = todo.getUser().getName();
         this.status = todo.getTodoStatus();
         this.createdAt = todo.getCreatedAt();
+        this.likeCount = todo.getLikeCount();
 
         for (Comment comment : todo.getComments()) {
             comments.add(new CommentResponseDto(comment));

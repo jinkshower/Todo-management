@@ -21,6 +21,7 @@ public class TodoRequestDto {
             .title(title)
             .content(content)
             .user(user)
+            .likeCount(0L)
             .build();
     }
 }

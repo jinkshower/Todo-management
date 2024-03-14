@@ -33,6 +33,7 @@ public class TodoResponseDtoTest implements TodoFixture {
             .title("title")
             .content("content")
             .user(user)
+            .likeCount(0L)
             .build();
         userRepository.save(user);
         todoRepository.save(todo);
