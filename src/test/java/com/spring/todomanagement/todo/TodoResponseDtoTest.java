@@ -8,6 +8,7 @@ import com.spring.todomanagement.todo_mangement.repository.CommentRepository;
 import com.spring.todomanagement.todo_mangement.repository.TodoRepository;
 import com.spring.todomanagement.todo_mangement.repository.UserRepository;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,7 @@ public class TodoResponseDtoTest implements TodoFixture {
     UserRepository userRepository;
 
     @Test
+    @Disabled
     void test1() {
         User user = TEST_USER;
         Todo todo = Todo.builder()

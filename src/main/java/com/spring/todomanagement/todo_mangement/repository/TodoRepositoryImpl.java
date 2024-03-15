@@ -51,26 +51,6 @@ public class TodoRepositoryImpl implements TodoQueryRepository {
             .fetch();
     }
 
-    public Page<Todo> findAll(Pageable pageable) {
-        // 페이징 정보를 적용하여 쿼리 실행
-        List<Todo> todos = queryFactory
-            .select(todo)
-            .from(todo)
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-        // 전체 개수를 조회
-        long totalSize = queryFactory
-            .select(todo.count())
-            .from(todo)
-            .fetchFirst();
-
-        // 페이징 처리된 결과를 Page 객체로 변환하여 반환
-//        return new PageImpl<>(todos, pageable, totalSize);
-        return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);
-    }
-
     private BooleanExpression eqTitle(String title) {
         if (StringUtils.isEmpty(title)) {
             return null;
